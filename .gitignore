@@ -1,0 +1,34 @@
+# LaTeX build artifacts, temporary files, and logs
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lol
+*.lot
+*.lop
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.gz
+*-blx.bib
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Optional: Ignore PDFs if you only want to version control source files
+# *.pdf
+
+# VS Code specific
+.vscode/
