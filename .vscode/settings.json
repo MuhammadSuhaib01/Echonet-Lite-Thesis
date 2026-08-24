@@ -37,5 +37,6 @@
   "git.enableSmartCommit": true,
   
   // Automatically pushes commits to GitHub (options: "all", "push", "off")
-  "git.postCommitCommand": "push"
+  "git.postCommitCommand": "push",
+  "git.confirmSync": false
 }
