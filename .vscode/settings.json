@@ -24,5 +24,18 @@
     "tools": ["pdflatex"]
   }
 ],
-"latex-workshop.latex.recipe.default": "pdflatex"
+"latex-workshop.latex.recipe.default": "pdflatex",
+"latex-workshop.latex.outDir": "%DIR%/build",
+"latex-workshop.latex.autoClean.run": "onBuilt",
+"latex-workshop.latex.clean.subfolder.enabled": true,
+"latex-workshop.formatting.latex": "latexindent",
+
+// Periodically fetches changes from GitHub
+  "git.autofetch": true,
+  
+  // Automatically stages and commits modified tracked files
+  "git.enableSmartCommit": true,
+  
+  // Automatically pushes commits to GitHub (options: "all", "push", "off")
+  "git.postCommitCommand": "push"
 }
