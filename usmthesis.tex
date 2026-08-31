@@ -257,7 +257,7 @@ bookmarksdepth=section,breaklinks=true]{hyperref}
 % of Abbreviations. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {\setlength\parskip{12pt}
-\include{acknowledgements}}
+  \include{chapters/acknowledgements}}
 
 \tableofcontents \clearpage
 \listoftables \clearpage
@@ -275,7 +275,7 @@ bookmarksdepth=section,breaklinks=true]{hyperref}
 % You can comment out the following line if you don't
 % have a "List of Acronyms"
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\include{loa} 
+\include{chapters/loa}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Joseph Ooi
@@ -295,8 +295,8 @@ bookmarksdepth=section,breaklinks=true]{hyperref}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Your Malay and English abstracts, each in one file.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{abs-mal}
-\input{abs-eng}
+\input{chapters/abs-mal}
+\input{chapters/abs-eng}
 
 
 \mainmatter
@@ -379,10 +379,10 @@ bookmarksdepth=section,breaklinks=true]{hyperref}
 % 1.25cm. No particular reason, I just wanted nice half divisions.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 {\titleformat{\chapter}[block]{\bfseries\filcenter}{\fontsize{12pt}{14pt}\selectfont\MakeTextUppercase{\chaptername{}\space%
- \if@chapnumwords\formatchapnum{chapter}%
- \else\thechapter\fi}}{1.25cm}{\MakeTextUppercase}
-\titlespacing*{\chapter}{0pt}{-50pt}{0.7\baselineskip}
-\input{appendices}}
+      \if@chapnumwords\formatchapnum{chapter}%
+      \else\thechapter\fi}}{1.25cm}{\MakeTextUppercase}
+  \titlespacing*{\chapter}{0pt}{-50pt}{0.7\baselineskip}
+  \input{chapters/appendices}}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -417,8 +417,8 @@ bookmarksdepth=section,breaklinks=true]{hyperref}
 % if it needs to be all caps in the ToC.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{refsection}
-\nocite{lim:2007,lim:latextypesetting}
-\printbibliography[title={LIST OF PUBLICATIONS},heading=bibintoc]
+  \nocite{tanakaEvaluationSecureEndtoend2018,phamMatterECHONETLite2024,sarker2021progress}
+  \printbibliography[title={LIST OF PUBLICATIONS},heading=bibintoc]
 \end{refsection}
 
 

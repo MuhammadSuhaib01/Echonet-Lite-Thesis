@@ -1,34 +1,81 @@
-\chapter{Introduction: Echonet Lite}\label{chap:intro}
-
-
-\section{Overview}
-The rapid growth of the global population and expanding industrial automation has created an urgent need for grid reliability, as imbalances between production capacity and fluctuating consumer loads threaten to render traditional power grids unsafe and unreliable.
-
-To counter this, integrating Demand Side Management (DSM) frameworks into Smart Grid (SG) architectures has proven highly effective, offering empirical reductions in peak-to-average ratios (PAR) of up to 65% and mitigating overall energy costs by 5% to 50%.
-
-Bridge to the Home: "This infrastructure relies on localized Home Energy Management Systems (HEMS) controllers tasked with coordinating the automated telemetry and load patterns of residential consumer IoT appliances ."
-
-Drop the Hammer (The Transition): "However, as recognized by Sarker et al. (2020), scaling these decentralized networks introduces deep cybersecurity vulnerabilities . Because these ecosystems lack standardized, natively secure communication protocols, malicious actors can easily intercept unencrypted load profiles or execute command injection attacks to manipulate load scheduling data, thereby turning energy efficiency mechanisms into tools for coordinated grid destabilization ."\citep{sarker2021progress}
+\chapter{Introduction: The Echonet Lite - An Overview}\label{chap:intro}
 
 
 
-\section{Echonet Lite - A Brief Introduction}
-\section{Industrial Networks and Cybersecurity Threats
- }
-\section{Research Motivation}
-\section{Problem Statement}
-\section{Research Objectives}
+% ==============================================================================
+% SECTION 1.1 OVERVIEW - RAW DRAFT BULLETS
+% ==============================================================================
 
-The main research objectives of this study are as follows:
+% Paragraph 1: Smart Grid to Smart Home Proliferation
+\begin{itemize}
+  \item Modern Smart Grid architectures increasingly rely on two-way communication networks to optimize power distribution and execute Demand-Side Management (DSM) strategies \cite{TODO}.
+  \item Demand-Side Management requires dynamic load management at the consumer level, transforming passive domestic consumers into active, dispatchable energy nodes \cite{TODO}.
+  \item This operational transition drives the rapid deployment of connected smart home devices—such as smart HVAC systems, water heaters, and energy meters—that function as controllable edge resources \cite{TODO}.
+\end{itemize}
 
-\begin{itemize}[nosep]
-  \item To propose a frame-level security mechanism for ECHONET Lite that provides message authentication and data integrity without modifying the underlying protocol structure.
-  \item To propose an anti-replay and temporal validation mechanism within the security extension to prevent unauthorized command injection and packet-duplication attacks.
-  \item To propose mechanism with minimal performance overhead, high operational efficiency and minimal latency compared to the standard ECHONET Lite protocol.
+% Paragraph 2: Smart Devices as Critical Infrastructure
+\begin{itemize}
+  \item Residential smart home technologies provide automated energy scheduling, consumer feedback, and remote load management capabilities \cite{TODO}.
+  \item Aggregated consumer IoT devices operate as Virtual Power Plants (VPPs) to directly support broader electrical grid stability during peak demand intervals \cite{TODO}.
+  \item As residential smart appliances gain centralized control over high-power physical loads, their reliable and continuous operation becomes critical to overall energy infrastructure \cite{TODO}.
+\end{itemize}
+
+% Paragraph 3: Cybersecurity Risks & Threat Statistics
+\begin{itemize}
+  \item Rapid commercial deployment of IoT devices frequently outpaces protocol security implementation, significantly expanding the attack surface of residential networks \cite{TODO}.
+  \item Malicious threat actors target local communications to intercept telemetry, inject unauthorized control commands, or recruit vulnerable devices into botnets \cite{TODO}.
+  \item Compromising consumer energy management endpoints poses severe risks, ranging from household privacy breaches to large-scale coordinated grid destabilization \cite{TODO}.
+\end{itemize}
+
+% Paragraph 4: Protocol Landscape & Comparative Overview
+\begin{itemize}
+  \item Modern smart home ecosystems leverage heterogeneous application-layer messaging protocols tailored to distinct architectural requirements \cite{TODO}.
+  \item IP-based protocols such as MQTT and CoAP rely on standard transport security like TLS/DTLS, while emerging standards like Matter focus on cross-vendor interoperability \cite{TODO}.
+  \item Standardized protocols like ECHONET Lite serve as core communication foundations for residential energy devices, yet natively lack application-layer security mechanisms \cite{TODO}.
 \end{itemize}
 
 
-\section{Scope and Limitations}
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \section{Overview}
+% The rapid growth of the global population and expanding industrial automation has created an urgent need for grid reliability, as imbalances between production capacity and fluctuating consumer loads threaten to render traditional power grids unsafe and unreliable.
+
+% To counter this, integrating Demand Side Management (DSM) frameworks into Smart Grid (SG) architectures has proven highly effective, offering empirical reductions in peak-to-average ratios (PAR) of up to 65% and mitigating overall energy costs by 5% to 50%.
+
+% Bridge to the Home: "This infrastructure relies on localized Home Energy Management Systems (HEMS) controllers tasked with coordinating the automated telemetry and load patterns of residential consumer IoT appliances ."
+
+% Drop the Hammer (The Transition): "However, as recognized by Sarker et al. (2020), scaling these decentralized networks introduces deep cybersecurity vulnerabilities . Because these ecosystems lack standardized, natively secure communication protocols, malicious actors can easily intercept unencrypted load profiles or execute command injection attacks to manipulate load scheduling data, thereby turning energy efficiency mechanisms into tools for coordinated grid destabilization ."\citep{sarker2021progress}
+
+
+
+% \section{Echonet Lite - A Brief Introduction}
+% \section{Industrial Networks and Cybersecurity Threats
+%  }
+% \section{Research Motivation}
+% \section{Problem Statement}
+% \section{Research Objectives}
+
+% The main research objectives of this study are as follows:
+
+% \begin{itemize}[nosep]
+%   \item To propose a frame-level security mechanism for ECHONET Lite that provides message authentication and data integrity without modifying the underlying protocol structure.
+%   \item To propose an anti-replay and temporal validation mechanism within the security extension to prevent unauthorized command injection and packet-duplication attacks.
+%   \item To propose mechanism with minimal performance overhead, high operational efficiency and minimal latency compared to the standard ECHONET Lite protocol.
+% \end{itemize}
+
+
+% \section{Scope and Limitations}
 
 
 % Hello and welcome, \ac{USM} research postgrad!  The \verb|usmthesis| package and template files were written in the hope that they may help you prepare your research thesis using \LaTeX, based on the \ac{IPS} requirements \citep{ips:thesis:guideline:2007}. \textbf{Please note that this version is based on the \emph{new} guidelines, in force 17 Dec 2007 onwards. Consequently, via independent effort from Joseph Ooi Boon Han, this template is updated to be as close to the latest template from USM (as of \emph{September 2023}).}
