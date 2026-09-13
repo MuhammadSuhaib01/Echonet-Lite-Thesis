@@ -35,5 +35,8 @@
   "git.enableSmartCommit": true,
   "git.postCommitCommand": "push",
   "git.confirmSync": false,
-  "latex-workshop.formatting.latex": "latexindent"
+  "latex-workshop.formatting.latex": "latexindent",
+  "cSpell.words": [
+    "ECHONET"
+  ]
 }

@@ -2,37 +2,68 @@
 
 
 
-% ==============================================================================
-% SECTION 1.1 OVERVIEW - RAW DRAFT BULLETS
-% ==============================================================================
+\section{Overview}
 
-% Paragraph 1: Smart Grid to Smart Home Proliferation
-\begin{itemize}
-  \item Modern Smart Grid architectures increasingly rely on two-way communication networks to optimize power distribution and execute Demand-Side Management (DSM) strategies \cite{TODO}.
-  \item Demand-Side Management requires dynamic load management at the consumer level, transforming passive domestic consumers into active, dispatchable energy nodes \cite{TODO}.
-  \item This operational transition drives the rapid deployment of connected smart home devices—such as smart HVAC systems, water heaters, and energy meters—that function as controllable edge resources \cite{TODO}.
-\end{itemize}
+Smart-grid development increasingly depends on communication and control at the consumer side of the electricity system. Demand-Side Management (DSM) coordinates electricity consumption with system conditions through activities such as load scheduling, peak reduction, and consumer feedback. A review of DSM research identifies optimization and coordinated load management as important components of smart-grid operation \citep{sarker2021progress}. At the residential level, these activities are implemented through Home Energy Management Systems (HEMS), which coordinate appliances, meters, and other connected devices.
 
-% Paragraph 2: Smart Devices as Critical Infrastructure
-\begin{itemize}
-  \item Residential smart home technologies provide automated energy scheduling, consumer feedback, and remote load management capabilities \cite{TODO}.
-  \item Aggregated consumer IoT devices operate as Virtual Power Plants (VPPs) to directly support broader electrical grid stability during peak demand intervals \cite{TODO}.
-  \item As residential smart appliances gain centralized control over high-power physical loads, their reliable and continuous operation becomes critical to overall energy infrastructure \cite{TODO}.
-\end{itemize}
+The resulting communication is not only between a utility and a customer. It also includes local machine-to-machine exchanges between a HEMS controller and appliances that can report measurements or receive control requests. Devices compliant with ECHONET Lite are relevant to this study because the protocol is designed for communication among home-network devices and has been used in smart-home systems and appliance-control research \citep{tanakaEvaluationSecureEndtoend2018}.
 
-% Paragraph 3: Cybersecurity Risks & Threat Statistics
-\begin{itemize}
-  \item Rapid commercial deployment of IoT devices frequently outpaces protocol security implementation, significantly expanding the attack surface of residential networks \cite{TODO}.
-  \item Malicious threat actors target local communications to intercept telemetry, inject unauthorized control commands, or recruit vulnerable devices into botnets \cite{TODO}.
-  \item Compromising consumer energy management endpoints poses severe risks, ranging from household privacy breaches to large-scale coordinated grid destabilization \cite{TODO}.
-\end{itemize}
+The security of this communication is consequential because an appliance command can change a physical operating state. An attacker who can observe or inject local traffic may be able to alter the behaviour that the HEMS is intended to coordinate. This chapter consequently narrows the broad smart-grid context to the application-layer security of ECHONET Lite. The discussion establishes the protocol context, identifies the security problem, defines the research objectives and scope, and explains the organization of the thesis.
 
-% Paragraph 4: Protocol Landscape & Comparative Overview
-\begin{itemize}
-  \item Modern smart home ecosystems leverage heterogeneous application-layer messaging protocols tailored to distinct architectural requirements \cite{TODO}.
-  \item IP-based protocols such as MQTT and CoAP rely on standard transport security like TLS/DTLS, while emerging standards like Matter focus on cross-vendor interoperability \cite{TODO}.
-  \item Standardized protocols like ECHONET Lite serve as core communication foundations for residential energy devices, yet natively lack application-layer security mechanisms \cite{TODO}.
-\end{itemize}
+\section{ECHONET Lite Protocol: An Overview}
+
+ECHONET Lite is an application-layer communication protocol for networked home appliances. The ECHONET Lite specification defines a message format containing an ECHONET Lite header and ECHONET Lite data. The data identifies the source and destination objects and carries service, property, and value information for an operation \citep{echonet_lite_part2}.
+
+The protocol supports operations such as reading and writing device properties and reporting device state. These operations allow a HEMS controller to request an appliance value, change a property, or receive an autonomous notification. The protocol's structured object and property model supports interoperability across appliance categories, while research on Matter and ECHONET Lite demonstrates the continuing importance of interoperability between smart-home ecosystems \citep{phamMatterECHONETLite2024}.
+
+The specification describes the communication middleware and frame fields, but it does not provide the application-layer authentication and integrity mechanism investigated in this thesis \citep{echonet_lite_part2}. Consequently, a receiver cannot rely on the standard frame alone to establish that a command originated from an authorized peer or that its contents were not modified in transit.
+
+\section{Smart-Home Networks and Cybersecurity Threats}
+
+The local home network is an important trust boundary for ECHONET Lite communication. The protocol can be used within a smart-home environment, but network reachability does not by itself prove that a sender is authorized. This distinction is particularly important when a HEMS controls appliances remotely or when a local network includes devices with different security capabilities. A secure end-to-end remote-control system for ECHONET Lite appliances has been investigated in previous work, illustrating that remote access and appliance control require explicit security design \citep{tanakaEvaluationSecureEndtoend2018}.
+
+This thesis considers three threat classes at the application layer. A replay attack reuses a previously valid command. An injection attack creates or modifies a command so that a receiver performs an unauthorized operation. A denial-of-service attack attempts to prevent legitimate communication by consuming processing, communication, or device resources. These threats are analysed as security requirements for the proposed mechanism; this chapter does not claim a measured prevalence of any threat without a supporting empirical source.
+
+\section{Research Motivation}
+
+The motivation for this research is the gap between the lightweight appliance communication model of ECHONET Lite and the security assurance required when that communication is exposed to an untrusted or remotely reachable network. An application-layer mechanism can make the security decision at the point where the ECHONET Lite message is parsed and interpreted.
+
+The proposed direction is a frame-level extension that authenticates relevant message data, detects modification, and rejects commands that fail freshness or replay validation. Its usefulness must be assessed not only by security behaviour but also by the communication and processing overhead imposed on constrained appliance nodes.
+
+\section{Problem Statement}
+
+This study addresses the following problem: standard ECHONET Lite communication provides an application-level data model for home appliances, but the standard frame does not by itself provide the message authentication, integrity verification, and anti-replay controls required for communication across a potentially untrusted network \citep{echonet_lite_part2}. Without a mechanism that combines origin verification, message integrity, and freshness validation, an attacker who gains access to the communication path may attempt unauthorized command injection or replay.
+
+\section{Research Objectives}
+
+The objectives of this study are:
+\begin{enumerate}[nosep]
+  \item To propose a frame-level security mechanism for ECHONET Lite that provides message authentication and data integrity without changing the protocol's core object and property model.
+  \item To propose an anti-replay and temporal-validation mechanism within the security extension to reduce the risk of unauthorized command injection and duplicated valid messages.
+  \item To evaluate the proposed mechanism in terms of security behaviour and performance overhead, including its effect on latency and operational efficiency relative to standard ECHONET Lite communication.
+\end{enumerate}
+
+The exact authentication-field size, algorithms, implementation platform, and evaluation metrics are specified in the methodology and implementation chapters after the requirements and design have been established.
+
+\section{Scope and Limitations}
+
+The study is limited to application-layer protection for ECHONET Lite messages. It focuses on message authentication, data integrity, freshness or replay validation, and the processing overhead associated with the proposed extension. It does not claim to solve every security problem in a smart grid or smart home. Physical-layer attacks, radio interference, appliance hardware tampering, general-purpose public-key infrastructure, and the security of unrelated smart-home protocols are outside the primary scope unless required for comparison.
+
+The evaluation results will be bounded by the selected simulation, emulation, or hardware environment. Results obtained from that environment should therefore be interpreted as evidence about the tested implementation and workload, rather than as universal performance values for every ECHONET Lite appliance.
+
+\section{Research Contribution}
+
+The intended contribution is an application-layer security extension for ECHONET Lite that connects protocol-level message processing with authentication, integrity, and replay validation requirements. A second contribution is an implementation and evaluation procedure that makes the overhead of the extension observable. Contribution claims will be finalized only after the design and evaluation results have been reported; design features or performance values are not presented here as empirical findings.
+
+\section{Research Steps}
+
+The research follows five stages. First, the ECHONET Lite message model and relevant threats are analysed to derive security and performance requirements. Second, the authentication and freshness mechanism is designed. Third, the mechanism is implemented and integrated with a standard ECHONET Lite communication path. Fourth, legitimate and adversarial message exchanges are tested in the selected evaluation environment. Finally, the results are analysed using the defined security and performance measures.
+
+\section{Thesis Organization}
+
+Chapter~\ref{chap:review} reviews ECHONET Lite, smart-home communication, and relevant security mechanisms. Chapter~\ref{chap:design} presents the requirements and design of the proposed extension. Chapter~\ref{chap:implementation} describes its implementation and test environment. The discussion chapter interprets the evaluation results and considers limitations, while the conclusion summarizes the findings and identifies possible future work.
+
+% The initial drafting bullets have been replaced by the prose sections above.
 
 
 
