@@ -1,0 +1,198 @@
+\chapter{Introduction: The Echonet Lite - An Overview}\label{chap:intro}
+
+
+
+% ==============================================================================
+% SECTION 1.1 OVERVIEW - RAW DRAFT BULLETS
+% ==============================================================================
+
+% Paragraph 1: Smart Grid to Smart Home Proliferation
+\begin{itemize}
+  \item Modern Smart Grid architectures increasingly rely on two-way communication networks to optimize power distribution and execute Demand-Side Management (DSM) strategies \cite{TODO}.
+  \item Demand-Side Management requires dynamic load management at the consumer level, transforming passive domestic consumers into active, dispatchable energy nodes \cite{TODO}.
+  \item This operational transition drives the rapid deployment of connected smart home devices—such as smart HVAC systems, water heaters, and energy meters—that function as controllable edge resources \cite{TODO}.
+\end{itemize}
+
+% Paragraph 2: Smart Devices as Critical Infrastructure
+\begin{itemize}
+  \item Residential smart home technologies provide automated energy scheduling, consumer feedback, and remote load management capabilities \cite{TODO}.
+  \item Aggregated consumer IoT devices operate as Virtual Power Plants (VPPs) to directly support broader electrical grid stability during peak demand intervals \cite{TODO}.
+  \item As residential smart appliances gain centralized control over high-power physical loads, their reliable and continuous operation becomes critical to overall energy infrastructure \cite{TODO}.
+\end{itemize}
+
+% Paragraph 3: Cybersecurity Risks & Threat Statistics
+\begin{itemize}
+  \item Rapid commercial deployment of IoT devices frequently outpaces protocol security implementation, significantly expanding the attack surface of residential networks \cite{TODO}.
+  \item Malicious threat actors target local communications to intercept telemetry, inject unauthorized control commands, or recruit vulnerable devices into botnets \cite{TODO}.
+  \item Compromising consumer energy management endpoints poses severe risks, ranging from household privacy breaches to large-scale coordinated grid destabilization \cite{TODO}.
+\end{itemize}
+
+% Paragraph 4: Protocol Landscape & Comparative Overview
+\begin{itemize}
+  \item Modern smart home ecosystems leverage heterogeneous application-layer messaging protocols tailored to distinct architectural requirements \cite{TODO}.
+  \item IP-based protocols such as MQTT and CoAP rely on standard transport security like TLS/DTLS, while emerging standards like Matter focus on cross-vendor interoperability \cite{TODO}.
+  \item Standardized protocols like ECHONET Lite serve as core communication foundations for residential energy devices, yet natively lack application-layer security mechanisms \cite{TODO}.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \section{Overview}
+% The rapid growth of the global population and expanding industrial automation has created an urgent need for grid reliability, as imbalances between production capacity and fluctuating consumer loads threaten to render traditional power grids unsafe and unreliable.
+
+% To counter this, integrating Demand Side Management (DSM) frameworks into Smart Grid (SG) architectures has proven highly effective, offering empirical reductions in peak-to-average ratios (PAR) of up to 65% and mitigating overall energy costs by 5% to 50%.
+
+% Bridge to the Home: "This infrastructure relies on localized Home Energy Management Systems (HEMS) controllers tasked with coordinating the automated telemetry and load patterns of residential consumer IoT appliances ."
+
+% Drop the Hammer (The Transition): "However, as recognized by Sarker et al. (2020), scaling these decentralized networks introduces deep cybersecurity vulnerabilities . Because these ecosystems lack standardized, natively secure communication protocols, malicious actors can easily intercept unencrypted load profiles or execute command injection attacks to manipulate load scheduling data, thereby turning energy efficiency mechanisms into tools for coordinated grid destabilization ."\citep{sarker2021progress}
+
+
+
+% \section{Echonet Lite - A Brief Introduction}
+% \section{Industrial Networks and Cybersecurity Threats
+%  }
+% \section{Research Motivation}
+% \section{Problem Statement}
+% \section{Research Objectives}
+
+% The main research objectives of this study are as follows:
+
+% \begin{itemize}[nosep]
+%   \item To propose a frame-level security mechanism for ECHONET Lite that provides message authentication and data integrity without modifying the underlying protocol structure.
+%   \item To propose an anti-replay and temporal validation mechanism within the security extension to prevent unauthorized command injection and packet-duplication attacks.
+%   \item To propose mechanism with minimal performance overhead, high operational efficiency and minimal latency compared to the standard ECHONET Lite protocol.
+% \end{itemize}
+
+
+% \section{Scope and Limitations}
+
+
+% Hello and welcome, \ac{USM} research postgrad!  The \verb|usmthesis| package and template files were written in the hope that they may help you prepare your research thesis using \LaTeX, based on the \ac{IPS} requirements \citep{ips:thesis:guideline:2007}. \textbf{Please note that this version is based on the \emph{new} guidelines, in force 17 Dec 2007 onwards. Consequently, via independent effort from Joseph Ooi Boon Han, this template is updated to be as close to the latest template from USM (as of \emph{September 2023}).}
+
+% \LaTeX{} is powerful and produces beautiful documents.  However, there is definitely a learning curve to it -- one that is worth the effort.  %This is also a learning process for the author, so 
+% If you find any errors in these templates or documents, or have any suggestions or feedback, do e-mail me about it (\path{liantze@gmail.com}).  The author cannot always guarantee prompt response, however. \Smiley
+
+% MiK\TeX{}, my recommended \LaTeX{} distribution for Windows, is available on the CSPC'07 CD. A step-by-step installation walkthrough is available at \citep{lim:latextypesetting}.
+
+% \section{Some Simple Command Usages.}
+
+% There are plenty of free \LaTeX{} tutorials online, some of which are listed in the bibliographies or available at \url{http://e-office.cs.usm.my}.  This sample thesis includes some examples to do some common tasks.  We start with some examples for lists (both bulleted and numbered), highlighting texts in bold and italic, and URLs:
+
+% \lstset{breaklines=true, basicstyle=\small\ttfamily, language=[LaTeX]TeX, columns=fullflexible, framesep=10pt, xleftmargin=16pt, keywordstyle={\mdseries}}
+
+% \begin{figure}[htb!]
+%   \begin{lstlisting}
+%     \begin{enumerate}
+% \item bulleted and numbered lists, 
+% \item footnotes\footnote{This is a footnote. However note that footnotes are not encouraged for the sciences.}, 
+% \item font effects such as
+
+% \begin{itemize}
+% \item \textbf{bold}, 
+% \item \emph{italic}, and 
+% \item \texttt{typewriter-like}
+% \end{itemize}
+
+% \item URLs and e-mail addresses: \url{http://www.cs.usm.my/~llt/}, \url{dummy.add@hotmail.com};
+% \item citations: see Chapter \ref{chap:review}.
+% \end{enumerate}
+% \end{lstlisting}
+% \caption{Common Layout and Formatting Tasks. Note how this long title wraps around I hope it works anyway. Look it needs more, so here's some more longer text. Is that enough? I hope it is.}\label{fig:simple}
+% \end{figure}
+
+% \begin{enumerate}
+% \item bulleted and numbered lists, 
+% \item footnotes\footnote{This is a footnote. However note that footnotes are not encouraged for the sciences.}, 
+% \item font effects such as
+
+% \begin{itemize}
+% \item \textbf{bold}, 
+% \item \emph{italic}, and 
+% \item \texttt{typewriter-like}
+% \end{itemize}
+
+% \item URLs and e-mail addresses: \url{http://www.cs.usm.my/~llt/}, \url{dummy@hotmail.com};
+% \item citations: see Chapter \ref{chap:review}
+% \end{enumerate}
+
+% Incidentally, if you feel that the lists above are too far apart vertically, you can customise them using the \texttt{enumitem} package. The effect is then like the following:
+
+% \begin{figure}[htb!]
+% \begin{lstlisting}
+% \begin{enumerate}[nosep]
+% \item item one,
+% \item item two,
+% \item item three.
+% \end{enumerate}
+
+% \begin{itemize}[nosep]
+% \item item one,
+% \item item two,
+% \item item three.
+% \end{itemize}
+% \end{lstlisting}
+% \caption{Compact Lists}\label{fig:enumitem}
+% \end{figure}
+
+
+% \begin{enumerate}[nosep]
+% \item item one,
+% \item item two,
+% \item item three.
+% \end{enumerate}
+
+% \begin{itemize}[nosep]
+% \item item one,
+% \item item two,
+% \item item three.
+% \end{itemize}
+
+% Granted, the lists are still wide, but this is because we need to honour the requirement for double line-spacing.
+
+% \section{Special Characters}
+
+% Bear in mind that certain characters are special \LaTeX{} symbols and need to be escaped, as shown in Table~\ref{tab:special:char}.
+
+% \begin{table}[htb!]
+% \caption{Special Characters in \LaTeX}\label{tab:special:char}
+% \centering
+% \begin{singlespace}\begin{tabular}{|c | l | l|}
+% \hline
+% Symbol & Name & Escape code \\\hline\hline
+% \# & \normalsize{hash, pound} & \verb|\#| \\
+% \$ & \normalsize{dollar} & \verb|\$| \\
+% \% & \normalsize{percent} & \verb|\%| \\
+% \^{} & \normalsize{``hat''} & \verb|\^{}| \\
+% \& & \normalsize{ampersand} & \verb|\&| \\
+% \_ & \normalsize{underscore} & \verb|\_| \\
+% \{ & \normalsize{left brace} & \verb|\{| \\
+% \} & \normalsize{right brace} & \verb|\}| \\
+% \~{} & \normalsize{tilde} & \verb|\~{}| \\
+% $\sim$ & \normalsize{wide tilde} & \verb|$\sim$| \\
+% `` & \normalsize{open double quotes} & \verb|``| \\
+% '' & \normalsize{close double quotes} & \verb|''| \\
+% \hline
+% \end{tabular}\end{singlespace}
+% \end{table}
+
+% Note that for quotation marks, you might prefer \verb|``this'' and `that'|  (``this'' and `that')
+% instead of \verb|"this" and 'that'|  ("this" and 'that').
+
+% If you need to typeset special characters (such as \Stopsign, \Biohazard, \Smiley, $\curvearrowright$, etc), take a look at the Comprehensive \LaTeX\ Symbol List. It should be under \path|C:\Program Files\MiKTeX 2.9\doc\info\symbols\comprehensive\symbols-a4.pdf| if you installed MiKTeX on a Windows machine.
+
+
+% \section{Useful Resources}\label{sec:resources}
+% \citep{latex:companion} is a \emph{very} useful book --- but it's quite an investment at RM180++.  A worthy one, nevertheless.  \citet{roberts} has a website with very good \LaTeX{} tutorials at \url{http://www.comp.leeds.ac.uk/andyr/misc/latex/}, too.  Don't forget the famous \texttt{lshort} tutorial \citep{lshort}.
+
+% I've also compiled a list that I find useful at \url{http://liantze.penguinattack.org/latextypesetting} \citep{lim:latextypesetting}.
