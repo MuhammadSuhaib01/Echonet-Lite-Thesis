@@ -29,6 +29,7 @@ Thumbs.db
 
 # Optional: Ignore PDFs if you only want to version control source files
 # *.pdf
-
+*.venv/
+*markitdown
 # VS Code specific
 .vscode/
