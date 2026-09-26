@@ -1,0 +1,9 @@
+| Field             | Size (Bytes) | Description                                                  |
+| ----------------- | ------------ | ------------------------------------------------------------ |
+| Version           | 1            | Protocol version for backward compatibility                  |
+| Length            | 1            | Total length of the authentication block                     |
+| Type of Mechanism | 1            | Identifies authentication type (e.g., HMAC)                  |
+| Timestamp         | 4            | Unix timestamp (seconds) for freshness                       |
+| Counter           | 4            | Monotonic counter for packet ordering and replay detection   |
+| HMAC-n            | 12           | Truncated HMAC (HMAC-96) ensuring authenticity and integrity |
+| **Total**         | **23 bytes** | Authentication block size                                    |

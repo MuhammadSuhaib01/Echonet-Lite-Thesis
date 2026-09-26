@@ -1,0 +1,36 @@
+Todo
+
+3.1 Introduction: A brief overview of what this chapter will cover.
+We will cover the technical aspects of the authentication machenism embedded in echonet lite protocol to abroupt the flaws and vulneribilites within the protocol. This chapter covers the architecture, flow and control operations of the authentication mechanism, the updated data frame, the updated size and the defense mechanism regarding the following attacks EDoS, DoS and replay attack. This chapter unveils the defensive stratergies that are being used to secure echonet lite on application layer without relying upon the base layers. The authentication mechanism checks weather the operations are being carried out by the geniuen user or an attacker. 
+
+
+
+3.2 Proposed Methodology / System Architecture: The high-level blueprint of your system.
+
+The system architecture is defined as follow we have the following fields added upon the echonet lite data frame:
+| Field             | Size (Bytes) | Description                                                  |
+| ----------------- | ------------ | ------------------------------------------------------------ |
+| Version           | 1            | Protocol version for backward compatibility                  |
+| Length            | 1            | Total length of the authentication block                     |
+| Type of Mechanism | 1            | Identifies authentication type (e.g., HMAC)                  |
+| Timestamp         | 4            | Unix timestamp (seconds) for freshness                       |
+| Counter           | 4            | Monotonic counter for packet ordering and replay detection   |
+| HMAC-n            | 12           | Truncated HMAC (HMAC-96) ensuring authenticity and integrity |
+| **Total**         | **23 bytes** | Authentication block size                                    |
+
+a 4-byte counter allows for $2^{32}$ ($4,294,967,296$) packets before resetting. If a smart meter sends 1 packet every second, it would take 136 years to exhaust the counter. This single statistic makes your design look incredibly robust and thoroughly researched.
+
+Adding the forementioned block for authentication helps vendors to easily integrate authentication to echonet lite and also sell distinguish between the products that have a lower level authentication, this provides abstraction and isolation like the authentication mechanism embedded within the device allows it to only respond to the request of the device that is of the same type meaning if there are two devices and both have authentication embedded in them but the mechanism is different for example device 1 has Type of Mechanism (ToM) as 92 (which means SHA-92 Truncated) and device 2 has ToM as 128 (which means SHA-128 Truncated) these both devices could not talk to each other as they both have different authentication mechanism. The version specifies the version of the protocol being use example we call this secured version as version 3, all devices that have different version would not be able to talk to this version. Timestamp is the identify the freshness of a request and also if the request has already been sent as the same. Each device will maintain a request table for itself that will store the request received to the device by this an AI-based algorithm will also be embedded that detects if there is a possibility of an attack or not but this will only be done to the devices that require high voltage or have the capability to handle the algorithm as sensors and other devices don't need such thing it will not be added to it. the counter will be used to monitor how many request are being sent by which device to which device if more than 5 requests are send to one device in 3 seconds that means this is not being sent by a human and that device will suspend request from the other device for 30 seconds. These values will be updated based on real data and latency and other potential concerns will be added as well. Then there is HMAC that will encrypt the authentication message and upon receiving it other other device will decrypt it using the pre-shared key and then the operation/request will be carried out and the response will be generated.
+
+
+3.3 Implementation Setup: The tools, languages, or hardware you used (e.g., Python, specific libraries, datasets, or network environments).
+
+Implentaiton is based on simulation and emulation, simulation is done on a docker based containerized approach, and the emulation is done on a real testbed where there are 8 real devices and they will respond to a auth_controller with is a emulated controller that has authentication embedded in it this emulator will send requests to another device called the translator this device will receive the request on the other devices behalf and check for the authentication and if the request is from an authorized device then the request will be forwarded to the actual device, now the important thing to note here is that all this is being done using the translator why because we don't have the actual devices, another device would be emulated device auth_ambient_light will be used that is setup based on the auth_controller and controller can directly access it as they will be configured at the same parameters. the translator will help us identify the importance of the authentication mechanism and the reliability.
+
+3.4 Evaluation Metrics: How you will measure if your system or research was successful (e.g., latency, accuracy, throughput).
+
+Evaluation metrics are as follow the system will be evaluated based on the following things latency, accuracy, throughput and success rate against attacks. 
+
+3.5 Summary: A concluding paragraph.
+
+This chapter has described the defense mechanism for the echonet lite protocol and has introduced new approach that helps mitigate EDoS, DoS and Replay attacks.
