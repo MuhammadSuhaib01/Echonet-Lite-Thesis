@@ -31,6 +31,26 @@
   "latex-workshop.latex.autoClean.run": "onBuilt",
   "latex-workshop.latex.clean.subfolder.enabled": true,
 
+  "files.exclude": {
+    "**/.venv": true,
+    "**/build": true,
+    "**/extra": true,
+    "**/markitdown": true,
+    "**/*.aux": true,
+    "**/*.bcf": true,
+    "**/*.blg": true,
+    "**/*.log": true,
+    "**/*.out": true,
+    "**/*.run.xml": true,
+    "**/*.toc": true,
+    "**/chapters/chap-introduction - Copy.tex": true,
+    "**/chapters/chap-conclusion.tex": true,
+    "**/chapters/chap-design.tex": true,
+    "**/chapters/chap-discussion.tex": true,
+    "**/chapters/chap-implementation.tex": true,
+    "**/chapters/chap-literature-review.tex": true
+  },
+
   "git.autofetch": true,
   "git.enableSmartCommit": true,
   "git.postCommitCommand": "push",
