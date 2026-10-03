@@ -33,8 +33,9 @@
 
   "files.exclude": {
     "**/.venv": true,
-    "**/build": true,
-    "**/extra": true,
+    "**/build": false,
+    "**/build/*": false,
+    "**/extra": false,
     "**/markitdown": true,
     "**/*.aux": true,
     "**/*.bcf": true,
@@ -48,7 +49,8 @@
     "**/chapters/chap-design.tex": true,
     "**/chapters/chap-discussion.tex": true,
     "**/chapters/chap-implementation.tex": true,
-    "**/chapters/chap-literature-review.tex": true
+    "**/chapters/chap-literature-review.tex": true,
+    "**/extra md files": true
   },
 
   "git.autofetch": true,
