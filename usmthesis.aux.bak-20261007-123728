@@ -1,0 +1,76 @@
+\relax 
+\abx@aux@refcontext{apa/global//global/global/global}
+\providecommand \babel@aux [2]{\global \let \babel@toc \@gobbletwo }
+\@nameuse{bbl@beforestart}
+\AC@reset@newl@bel
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\babel@aux{english}{}
+\@writefile{toc}{\raggedright \sloppy }
+\@writefile{lof}{\raggedright \sloppy }
+\@writefile{lof}{\hfill {\bfseries Page}\\}
+\@writefile{lot}{\raggedright \sloppy }
+\@writefile{lot}{\hfill {\bfseries Page}\\}
+\@writefile{lop}{\raggedright \sloppy }
+\@writefile{lop}{\hfill {\bfseries Page}\\}
+\@writefile{toc}{\contentsline {chapter}{\MakeTextUppercase    []{Introduction}}{i}{chapter*.1}\protected@file@percent }
+\newlabel{chap:intro}{{}{i}{Introduction}{chapter*.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {0.1}Overview}{i}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {0.2}ECHONET Lite Protocol: An Overview}{v}{section*.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Echonet Lite Architecture.}}{vi}{figure.4}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:echonet-architecture}{{1}{vi}{Echonet Lite Architecture}{figure.4}{}}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{haneySmartHomeSecurity2020}
+\abx@aux@segm{0}{0}{haneySmartHomeSecurity2020}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{haneySmartHomeSecurity2020}
+\abx@aux@segm{0}{0}{haneySmartHomeSecurity2020}
+\@writefile{toc}{\contentsline {section}{\numberline {0.3}Smart-Home Networks and Cybersecurity Threats}{vii}{section*.5}\protected@file@percent }
+\abx@aux@page{1}{7}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{lemayTaxonomyCyberPhysicalThreats2018}
+\abx@aux@segm{0}{0}{lemayTaxonomyCyberPhysicalThreats2018}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{lemayTaxonomyCyberPhysicalThreats2018}
+\abx@aux@segm{0}{0}{lemayTaxonomyCyberPhysicalThreats2018}
+\abx@aux@cite{0}{builGilCybersecuritySmartHomes2022}
+\abx@aux@segm{0}{0}{builGilCybersecuritySmartHomes2022}
+\abx@aux@page{2}{8}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{antonakakisUnderstandingMiraiBotnet2017}
+\abx@aux@segm{0}{0}{antonakakisUnderstandingMiraiBotnet2017}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{megasProfileIoTCore2022}
+\abx@aux@segm{0}{0}{megasProfileIoTCore2022}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{aljanahSurveySmartHomeAuthentication2021}
+\abx@aux@segm{0}{0}{aljanahSurveySmartHomeAuthentication2021}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{replayAttackSmartHome2023}
+\abx@aux@segm{0}{0}{replayAttackSmartHome2023}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{lemayTaxonomyCyberPhysicalThreats2018}
+\abx@aux@segm{0}{0}{lemayTaxonomyCyberPhysicalThreats2018}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{antonakakisUnderstandingMiraiBotnet2017}
+\abx@aux@segm{0}{0}{antonakakisUnderstandingMiraiBotnet2017}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{nistConsumerGradeRouter2024}
+\abx@aux@segm{0}{0}{nistConsumerGradeRouter2024}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{megasProfileIoTCore2022}
+\abx@aux@segm{0}{0}{megasProfileIoTCore2022}
+\abx@aux@cite{0}{haneySmartHomeSecurity2020}
+\abx@aux@segm{0}{0}{haneySmartHomeSecurity2020}
+\abx@aux@page{3}{12}
+\abx@aux@refcontext{apa/apasortcite//global/global/global}
+\abx@aux@cite{0}{echonet_lite_part2}
+\abx@aux@segm{0}{0}{echonet_lite_part2}
+\@writefile{toc}{\contentsline {section}{\numberline {0.4}Research Motivation}{xiv}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {0.5}Problem Statement}{xiv}{section*.7}\protected@file@percent }
+\abx@aux@page{4}{14}
+\@writefile{toc}{\contentsline {section}{\numberline {0.6}Research Objectives}{xiv}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {0.7}Scope and Limitations}{xv}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {0.8}Research Contribution}{xv}{section*.13}\protected@file@percent }

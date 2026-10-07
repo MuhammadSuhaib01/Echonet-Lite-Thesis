@@ -1,0 +1,89 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="ECHONET-Lite-Architecture" id="echonet_arch_001">
+    <mxGraphModel dx="1178" dy="737" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ENuw2hpB9VB6lYF7Ym0z-2" connectable="0" parent="1" style="group" value="" vertex="1">
+          <mxGeometry height="480" width="1020" x="40" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="domain_utility" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;align=center;verticalAlign=top;fontStyle=1;fontSize=14;spacingTop=10;" value="Utility / Power Provider Domain" vertex="1">
+          <mxGeometry height="480" width="380" as="geometry" />
+        </mxCell>
+        <mxCell id="domain_customer" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;align=center;verticalAlign=top;fontStyle=1;fontSize=14;spacingTop=10;dashed=0;fillColor=light-dark(#6A00FF,#080808);fontColor=#ffffff;strokeColor=#3700CC;" value="Customer Premises" vertex="1">
+          <mxGeometry height="480" width="600" x="420" as="geometry" />
+        </mxCell>
+        <mxCell id="node_smart_grid" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;shadow=1;" value="&lt;b&gt;Smart Grid&lt;/b&gt;&lt;br&gt;(Power Company)" vertex="1">
+          <mxGeometry height="80" width="140" x="40" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="node_dsm" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;shadow=1;" value="&lt;b&gt;Demand Side Management (DSM)&lt;/b&gt;&lt;br&gt;Aggregator" vertex="1">
+          <mxGeometry height="80" width="150" x="210" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="node_smart_meter" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;shadow=1;" value="&lt;b&gt;Smart Meter&lt;/b&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="225" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="node_hems" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;shadow=1;" value="&lt;b&gt;HEMS Controller&lt;/b&gt;&lt;br&gt;(Home Energy Management System)" vertex="1">
+          <mxGeometry height="100" width="140" x="460" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="network_echonet" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;dashed=1;align=center;verticalAlign=top;spacingTop=10;" value="&lt;b&gt;Local Network (ECHONET Lite Protocol)&lt;/b&gt;" vertex="1">
+          <mxGeometry height="360" width="300" x="680" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="app_solar" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" value="Solar Panel System" vertex="1">
+          <mxGeometry height="50" width="100" x="720" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="app_ev" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" value="EV Charger" vertex="1">
+          <mxGeometry height="50" width="100" x="840" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="app_battery" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" value="Storage Battery" vertex="1">
+          <mxGeometry height="50" width="100" x="720" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="app_hvac" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="Air Conditioner" vertex="1">
+          <mxGeometry height="50" width="100" x="840" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="app_lights" parent="ENuw2hpB9VB6lYF7Ym0z-2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" value="Smart Lighting" vertex="1">
+          <mxGeometry height="50" width="100" x="780" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_grid_dsm" edge="1" parent="ENuw2hpB9VB6lYF7Ym0z-2" source="node_smart_grid" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;curved=1;" target="node_dsm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_grid_dsm" connectable="0" parent="edge_grid_dsm" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Route C (DR Request)&lt;br&gt;[OpenADR]" vertex="1">
+          <mxGeometry relative="1" x="-0.1" y="1" as="geometry">
+            <mxPoint x="-15" y="-19" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_grid_meter" edge="1" parent="ENuw2hpB9VB6lYF7Ym0z-2" source="node_smart_grid" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;curved=1;" target="node_smart_meter">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_grid_meter" connectable="0" parent="edge_grid_meter" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Route A" vertex="1">
+          <mxGeometry relative="1" x="-0.2" y="2" as="geometry">
+            <mxPoint x="-10" y="12" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_dsm_hems" edge="1" parent="ENuw2hpB9VB6lYF7Ym0z-2" source="node_dsm" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;curved=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" target="node_hems">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_dsm_hems" connectable="0" parent="edge_dsm_hems" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="EMS Control" vertex="1">
+          <mxGeometry relative="1" x="0.1" y="-1" as="geometry">
+            <mxPoint x="-5" y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_meter_hems" edge="1" parent="ENuw2hpB9VB6lYF7Ym0z-2" source="node_smart_meter" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#333333;edgeStyle=orthogonalEdgeStyle;curved=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="node_hems">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_meter_hems" connectable="0" parent="edge_meter_hems" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Route B&lt;br&gt;(Power Usage Data)" vertex="1">
+          <mxGeometry relative="1" x="0.1" y="2" as="geometry">
+            <mxPoint x="1" y="18" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge_hems_echonet" edge="1" parent="ENuw2hpB9VB6lYF7Ym0z-2" source="node_hems" style="endArrow=classic;startArrow=classic;html=1;strokeWidth=3;strokeColor=light-dark(#080808,#080808);edgeStyle=orthogonalEdgeStyle;fillColor=light-dark(transparent,#080808);" target="network_echonet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="label_hems_echonet" connectable="0" parent="edge_hems_echonet" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontStyle=1;fontColor=#0050ef;" value="Control / Acquire&lt;br&gt;(ECHONET Lite)" vertex="1">
+          <mxGeometry relative="1" x="-0.15" y="1" as="geometry">
+            <mxPoint x="6" y="-19" as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,268 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{apa/apasortcite//global/global/global}
+    \entry{echonet_lite_part2}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=c6c63504bd6dfabc0a940503be162119}{%
+           family={Consortium},
+           familyi={C\bibinitperiod},
+           given={ECHONET},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {ECHONET Consortium}%
+      }
+      \list{location}{1}{%
+        {Tokyo, Japan}%
+      }
+      \strng{namehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{fullhash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{fullhashraw}{c6c63504bd6dfabc0a940503be162119}
+      \strng{bibnamehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authorbibnamehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authornamehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authorfullhash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authorfullhashraw}{c6c63504bd6dfabc0a940503be162119}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{day}{30}
+      \field{langid}{english}
+      \field{month}{9}
+      \field{number}{Version 1.14}
+      \field{shorttitle}{ECHONET Lite Specification Part 2}
+      \field{title}{ECHONET Lite Specification: Part 2 ECHONET Lite Communications Middleware Specifications}
+      \field{year}{2022}
+      \field{dateera}{ce}
+    \endentry
+    \entry{haneySmartHomeSecurity2020}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=276ee640c5ac9da99e17f0c42869a7db}{%
+           family={Haney},
+           familyi={H\bibinitperiod},
+           given={Julie\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a0a7ad5751ee8f89fe09dd0e6762dc64}{%
+           family={Furman},
+           familyi={F\bibinitperiod},
+           given={Susanne\bibnamedelima M.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6a8ab10964c3963ddb18cef14d4289cc}{%
+           family={Acar},
+           familyi={A\bibinitperiod},
+           given={Yasemin},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=9856438cceac8348bcd7d656c01f1eff}{%
+           family={Moallem},
+           familyi={M\bibinitperiod},
+           given={Abbas},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer International Publishing}%
+      }
+      \strng{namehash}{30186d59cf84c452853c2a727ea55f25}
+      \strng{fullhash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{fullhashraw}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{bibnamehash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{authorbibnamehash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{authornamehash}{30186d59cf84c452853c2a727ea55f25}
+      \strng{authorfullhash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{authorfullhashraw}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{editorbibnamehash}{9856438cceac8348bcd7d656c01f1eff}
+      \strng{editornamehash}{9856438cceac8348bcd7d656c01f1eff}
+      \strng{editorfullhash}{9856438cceac8348bcd7d656c01f1eff}
+      \strng{editorfullhashraw}{9856438cceac8348bcd7d656c01f1eff}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{As smart home technology is becoming pervasive, smart home devices are increasingly being used by non-technical users who may have little understanding of the technology or how to properly mitigate privacy and security risks. To better inform security and privacy mitigation guidance for smart home devices, we interviewed 40 smart home users to discover their security and privacy concerns and mitigation strategies. Results indicated a number of concerns, but a general willingness to accept risk in lieu of perceived benefit. Concern was sometimes, but not always, accompanied by users taking mitigating actions, although most of these were simplistic and not technical in nature due to limited options or lack of user technical knowledge. Our results inform how manufacturers might empower users to take protective actions, including providing security tips and more options for controlling data being collected by devices. We also identify areas that might benefit from thirdparty involvement, for example by providing guidance to manufacturers on minimum privacy and security standards or developing a security and privacy rating system to aid users in selecting devices.}
+      \field{booktitle}{HCI for Cybersecurity, Privacy and Trust}
+      \field{isbn}{978-3-030-50308-6 978-3-030-50309-3}
+      \field{langid}{english}
+      \field{shorttitle}{Smart Home Security and Privacy Mitigations}
+      \field{title}{Smart Home Security and Privacy Mitigations: Consumer Perceptions, Practices, and Challenges}
+      \field{urlday}{3}
+      \field{urlmonth}{10}
+      \field{urlyear}{2026}
+      \field{volume}{12210}
+      \field{year}{2020}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{393\bibrangedash 411}
+      \range{pages}{19}
+      \verb{doi}
+      \verb 10.1007/978-3-030-50309-3_26
+      \endverb
+      \verb{urlraw}
+      \verb https://link.springer.com/10.1007/978-3-030-50309-3_26
+      \endverb
+      \verb{url}
+      \verb https://link.springer.com/10.1007/978-3-030-50309-3_26
+      \endverb
+    \endentry
+  \enddatalist
+  \datalist[entry]{apa/global//global/global/global}
+    \entry{echonet_lite_part2}{misc}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=c6c63504bd6dfabc0a940503be162119}{%
+           family={Consortium},
+           familyi={C\bibinitperiod},
+           given={ECHONET},
+           giveni={E\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{institution}{1}{%
+        {ECHONET Consortium}%
+      }
+      \list{location}{1}{%
+        {Tokyo, Japan}%
+      }
+      \strng{namehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{fullhash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{fullhashraw}{c6c63504bd6dfabc0a940503be162119}
+      \strng{bibnamehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authorbibnamehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authornamehash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authorfullhash}{c6c63504bd6dfabc0a940503be162119}
+      \strng{authorfullhashraw}{c6c63504bd6dfabc0a940503be162119}
+      \field{sortinit}{C}
+      \field{sortinithash}{4d103a86280481745c9c897c925753c0}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{day}{30}
+      \field{langid}{english}
+      \field{month}{9}
+      \field{number}{Version 1.14}
+      \field{shorttitle}{ECHONET Lite Specification Part 2}
+      \field{title}{ECHONET Lite Specification: Part 2 ECHONET Lite Communications Middleware Specifications}
+      \field{year}{2022}
+      \field{dateera}{ce}
+    \endentry
+    \entry{haneySmartHomeSecurity2020}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=276ee640c5ac9da99e17f0c42869a7db}{%
+           family={Haney},
+           familyi={H\bibinitperiod},
+           given={Julie\bibnamedelima M.},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=a0a7ad5751ee8f89fe09dd0e6762dc64}{%
+           family={Furman},
+           familyi={F\bibinitperiod},
+           given={Susanne\bibnamedelima M.},
+           giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=6a8ab10964c3963ddb18cef14d4289cc}{%
+           family={Acar},
+           familyi={A\bibinitperiod},
+           given={Yasemin},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=9856438cceac8348bcd7d656c01f1eff}{%
+           family={Moallem},
+           familyi={M\bibinitperiod},
+           given={Abbas},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Cham}%
+      }
+      \list{publisher}{1}{%
+        {Springer International Publishing}%
+      }
+      \strng{namehash}{30186d59cf84c452853c2a727ea55f25}
+      \strng{fullhash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{fullhashraw}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{bibnamehash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{authorbibnamehash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{authornamehash}{30186d59cf84c452853c2a727ea55f25}
+      \strng{authorfullhash}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{authorfullhashraw}{1bd9f03c8e6c6e23e07d40a9ac835ae6}
+      \strng{editorbibnamehash}{9856438cceac8348bcd7d656c01f1eff}
+      \strng{editornamehash}{9856438cceac8348bcd7d656c01f1eff}
+      \strng{editorfullhash}{9856438cceac8348bcd7d656c01f1eff}
+      \strng{editorfullhashraw}{9856438cceac8348bcd7d656c01f1eff}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \true{uniqueprimaryauthor}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{shorttitle}
+      \field{abstract}{As smart home technology is becoming pervasive, smart home devices are increasingly being used by non-technical users who may have little understanding of the technology or how to properly mitigate privacy and security risks. To better inform security and privacy mitigation guidance for smart home devices, we interviewed 40 smart home users to discover their security and privacy concerns and mitigation strategies. Results indicated a number of concerns, but a general willingness to accept risk in lieu of perceived benefit. Concern was sometimes, but not always, accompanied by users taking mitigating actions, although most of these were simplistic and not technical in nature due to limited options or lack of user technical knowledge. Our results inform how manufacturers might empower users to take protective actions, including providing security tips and more options for controlling data being collected by devices. We also identify areas that might benefit from thirdparty involvement, for example by providing guidance to manufacturers on minimum privacy and security standards or developing a security and privacy rating system to aid users in selecting devices.}
+      \field{booktitle}{HCI for Cybersecurity, Privacy and Trust}
+      \field{isbn}{978-3-030-50308-6 978-3-030-50309-3}
+      \field{langid}{english}
+      \field{shorttitle}{Smart Home Security and Privacy Mitigations}
+      \field{title}{Smart Home Security and Privacy Mitigations: Consumer Perceptions, Practices, and Challenges}
+      \field{urlday}{3}
+      \field{urlmonth}{10}
+      \field{urlyear}{2026}
+      \field{volume}{12210}
+      \field{year}{2020}
+      \field{dateera}{ce}
+      \field{urldateera}{ce}
+      \field{pages}{393\bibrangedash 411}
+      \range{pages}{19}
+      \verb{doi}
+      \verb 10.1007/978-3-030-50309-3_26
+      \endverb
+      \verb{urlraw}
+      \verb https://link.springer.com/10.1007/978-3-030-50309-3_26
+      \endverb
+      \verb{url}
+      \verb https://link.springer.com/10.1007/978-3-030-50309-3_26
+      \endverb
+    \endentry
+  \enddatalist
+  \missing{aljanahSurveySmartHomeAuthentication2021}
+  \missing{antonakakisUnderstandingMiraiBotnet2017}
+  \missing{builGilCybersecuritySmartHomes2022}
+  \missing{lemayTaxonomyCyberPhysicalThreats2018}
+  \missing{megasProfileIoTCore2022}
+  \missing{nistConsumerGradeRouter2024}
+  \missing{replayAttackSmartHome2023}
+\endrefsection
+\endinput
+

@@ -60,5 +60,12 @@
   "latex-workshop.formatting.latex": "latexindent",
   "cSpell.words": [
     "ECHONET"
-  ]
+  ],
+  "ltex.dictionary": {
+    "en-US": [
+      "apa",
+      "apacite",
+      "biblatex"
+    ]
+  }
 }
