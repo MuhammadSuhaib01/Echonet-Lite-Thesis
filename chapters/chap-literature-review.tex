@@ -4,6 +4,187 @@ Echonet lite does not have native security measures due to this it relies on the
 
 This chapter should have been a survey on the history of \TeX{} and \LaTeX{}, and a comparison to conventional word processors in preparing academic documents.  Due to lack of time on the author's part, and also the abundance of such discussions on the web, we look at ways to prepare the bibliography and citations instead.
 
+
+% ============================================================
+% SECTION: Cybersecurity Consequences and Economic Impact
+% ============================================================
+
+\section{Cybersecurity Consequences and Economic Impact of Insecure Connected Systems}
+\label{sec:cybersecurity_economic_impact}
+
+The increasing deployment of connected devices has expanded the potential consequences of cybersecurity weaknesses beyond conventional information-security concerns. In residential and Internet of Things (IoT) environments, inadequate authentication, insecure interfaces, and poorly protected communication channels can enable unauthorized access, device compromise, privacy violations, service disruption, and, in some cases, physical safety consequences. The literature therefore indicates that the security of connected devices must be considered not only from the perspective of confidentiality and data protection, but also in terms of operational reliability, financial loss, and the potential consequences of unauthorized control.
+
+% REFERENCE: Almani & Furnell, "Assessing the Security Vulnerabilities and Countermeasures of Connected and Smart Devices" (2025)
+Almani and Furnell identify weak authentication, insecure interfaces, and inadequate security mechanisms as important vulnerabilities affecting connected and smart devices. Their discussion further highlights that vulnerabilities in IoT environments may extend beyond conventional data-security concerns to include safety-related consequences when compromised devices interact with physical processes \cite{AlmaniFurnell2025}. This observation is particularly relevant to residential cyber-physical environments, where connected devices can influence physical equipment and household operations.
+
+% REFERENCE: Buil-Gil et al., "The digital harms of smart home devices" (2022)
+The security risks associated with smart-home environments are further demonstrated by Buil-Gil et al., who identify a range of digital harms associated with connected domestic devices, including unauthorized access, privacy intrusion, hacking, malware, and denial-of-service attacks \cite{BuilGil2022}. Their work also documents real-world cases of smart-home device abuse, demonstrating that vulnerabilities in domestic connected devices are not merely theoretical security concerns.
+
+The consequences of device compromise can extend beyond the individual device or household. Insecure IoT devices may be incorporated into botnets and subsequently used to conduct attacks against external systems. This creates a situation in which the owner of a compromised device may simultaneously become a victim and an unwitting participant in a broader cyberattack.
+
+% REFERENCE: Fong et al., "Quantifying Consumer Costs of Insecure Internet of Things Devices"
+Fong et al. examine the consumer-side costs associated with insecure IoT devices and demonstrate that compromised devices can impose additional resource consumption and degrade the experience of legitimate users \cite{Fong}. Such consequences include increased bandwidth consumption and impaired device or network performance. These findings are important because the consequences of insecure IoT deployments are not necessarily limited to the organization or infrastructure directly targeted by an attacker.
+
+% REFERENCE: Kagita et al., "A Review on Cyber Crimes on the Internet of Things" (2020)
+Kagita et al. similarly discuss the role of insecure IoT devices in cybercrime, including their exploitation as components of botnets and their use as proxies for distributed denial-of-service (DDoS) attacks \cite{Kagita2020}. Their review also provides broader evidence of the scale and frequency of cybercrime affecting IoT environments. This establishes that weakly secured connected devices can provide attackers with an accessible entry point into larger attack infrastructures.
+
+The relationship between authentication and financial loss is particularly important when considering the security of communication systems. Although many reported cyber-loss figures encompass broader categories of cybercrime rather than residential M2M communication specifically, the literature provides evidence that inadequate authentication can contribute directly to unauthorized access and fraudulent activity.
+
+% REFERENCE: Calderon & Onita, "Big Data and the Perceived Expectations Gap in Digital Authentication Processes" (2017)
+Calderon and Onita provide evidence connecting failures in digital authentication with financial fraud, illustrating the economic consequences that may arise when entities cannot be reliably identified and authenticated \cite{CalderonOnita2017}. This relationship is particularly relevant to communication protocols in which a device or controller must determine whether an incoming message originates from an authorized entity.
+
+The financial consequences of cyber incidents also vary considerably in magnitude. While some incidents result in relatively limited losses, a small proportion of events can produce exceptionally large financial consequences. This distribution is important when assessing the potential impact of security weaknesses because average incident costs alone may fail to represent the risk associated with severe but less frequent events.
+
+% REFERENCE: Romanosky, "Examining the costs and causes of cyber incidents" (2016)
+Romanosky reports that many cyber incidents have costs below the levels associated with highly publicized mega-breaches, with typical incident costs reported at less than USD~200,000 and approximately 0.4\% of annual revenue \cite{Romanosky2016}. However, these values should not be interpreted as a complete measure of cyber-related harm because incident-cost estimates may exclude indirect consequences.
+
+% REFERENCE: Shevchenko et al., "The nature of losses from cyber-related events" (2022)
+The heavy-tailed nature of cyber losses is further emphasized by Shevchenko et al., who report that although a large proportion of cyber events result in comparatively moderate losses, a small number of events can exceed USD~1 billion \cite{Shevchenko2022}. This characteristic indicates that cybersecurity risk should not be evaluated solely according to the expected cost of a typical incident; low-frequency, high-impact events must also be considered.
+
+Examples from critical and safety-sensitive environments further illustrate the potential consequences of compromise.
+
+% REFERENCE: Williams et al., "Cybersecurity Risks in a Pandemic" (2020)
+Williams et al. discuss cybersecurity incidents in healthcare environments and provide examples of direct financial losses and operational disruption, including ransomware-related incidents involving healthcare organizations \cite{Williams2020}. Their discussion also identifies network segmentation, including the use of virtual local area networks (VLANs), as a mitigation strategy. Such measures illustrate the importance of protecting systems at the network level; however, network-level containment does not necessarily provide authentication or message integrity within an application-layer protocol.
+
+% REFERENCE: Riggs et al., "Impact, Vulnerabilities, and Mitigation Strategies for Cyber-Secure Critical Infrastructure" (2023)
+Riggs et al. extend this concern to critical infrastructure, where cyber incidents can produce substantial service disruption and financial consequences \cite{Riggs2023}. Their work emphasizes the continuing importance of cybersecurity for interconnected operational environments. Although critical infrastructure and residential HEMS deployments differ substantially in scale and architecture, both involve network-connected systems whose compromise may influence physical operations.
+
+% REFERENCE: Taddeo, "Three Ethical Challenges of Applications of Artificial Intelligence in Cybersecurity" (2019)
+The potential magnitude of cyber-related losses is further illustrated by large-scale malware incidents. Taddeo discusses the NotPetya attack and the substantial financial consequences experienced by major organizations, including Merck, Maersk, and FedEx, with reported losses of approximately USD~300 million for each organization \cite{Taddeo2019}. Such incidents demonstrate how compromise within interconnected environments can propagate beyond an individual system and produce substantial organizational consequences.
+
+Cybersecurity costs also extend beyond immediate technical recovery or direct financial loss. Reputational damage, business interruption, loss of consumer trust, and broader societal consequences may not be captured adequately by conventional incident-cost measurements.
+
+% REFERENCE: Sviatun et al., "Combating Cybercrime: Economic and Legal Aspects" (2021)
+Sviatun et al. emphasize that the economic consequences of cybercrime include both direct and indirect losses and that reported figures may fail to capture the complete burden associated with cyber incidents \cite{Sviatun2021}. This distinction is important when interpreting published cybercrime statistics because measured losses may represent only a subset of the actual economic and social impact.
+
+% REFERENCE: Abrardi et al., "The economics of cyber risk" (2025)
+Abrardi et al. similarly discuss the broader economic consequences of cyber risk, including service disruption, DDoS-related costs, and market or reputational effects \cite{Abrardi2025}. Their discussion demonstrates that cyber incidents may generate costs that extend well beyond the immediate technical damage to a compromised device or system.
+
+% REFERENCE: Lukošiūtė et al., "Global Cybercrime Damages" (2026)
+The difficulty of estimating cybercrime losses is also reflected in the variation among published global estimates. Lukošiūtė et al. discuss different categories of cybercrime-related costs, including direct losses, incident response, defensive expenditure, and indirect consequences \cite{Lukosiute2026}.
+
+% REFERENCE: Cremer et al., "Cyber risk and cybersecurity: a systematic review of data availability" (2022)
+Cremer et al. similarly highlight the challenges associated with obtaining consistent and comparable cyber-risk data and report substantial variation in available global cost estimates \cite{Cremer2022}. Consequently, global cybercrime figures should be interpreted as broad estimates rather than precise measurements of losses attributable to a particular technology, protocol, or attack mechanism.
+
+% REFERENCE: Sharif & Mohammed, "A literature review of financial losses statistics for cyber security and future trend" (2022)
+Sharif and Mohammed provide a broader review of cybersecurity financial-loss statistics and report increasing numbers of security incidents together with substantial projected global losses \cite{SharifMohammed2022}. These findings provide additional evidence of the increasing economic significance of cybersecurity failures.
+
+National and sector-specific statistics provide further evidence of the continuing burden of cybercrime.
+
+% REFERENCE: Goonatilake & Ortiz, "Rise of Computer-Related Crimes" (2026)
+Goonatilake and Ortiz examine recent computer-related crime trends and report substantial growth in complaint-based losses, including USD~16.6 billion in reported losses associated with the U.S. Internet Crime Complaint Center (IC3) in 2024 \cite{GoonatilakeOrtiz2026}. Such figures provide an indication of the scale of reported cybercrime, although complaint-based statistics should not be interpreted as a complete measurement of total societal losses.
+
+% REFERENCE: Eling et al., "The Economic Impact of Extreme Cyber Risk Scenarios" (2022)
+Eling et al. investigate extreme cyber-risk scenarios and demonstrate the importance of considering high-impact events when evaluating the economic consequences of cyber risk \cite{Eling2022}. Their work complements studies focused on average incident costs by emphasizing the possibility of exceptionally severe outcomes.
+
+% REFERENCE: Riek & Böhme, "The costs of consumer-facing cybercrime" (2018)
+From a consumer perspective, Riek and Böhme examine the costs associated with consumer-facing cybercrime and highlight challenges in measuring both losses and expenditure on protection \cite{RiekBohme2018}. This distinction is relevant to smart-home environments because consumers may incur costs both from security incidents themselves and from measures adopted to protect connected devices.
+
+% REFERENCE: Taman, "Impacts of Financial Cybercrime on Institutions and Companies" (2024)
+Taman further discusses the financial consequences of cybercrime for institutions and companies, reinforcing the observation that cybersecurity failures can produce substantial economic effects beyond the immediate technical compromise \cite{Taman2024}.
+
+% REFERENCE: Makhalina & Makhalin, "Digitalization of business increases the costs of information security" (2020)
+Makhalina and Makhalin examine the relationship between increasing digitalization and information-security costs, highlighting the growing volume of cyber threats and associated recovery and security expenditure \cite{MakhalinaMakhalin2020}.
+
+\subsection{Implications for Residential M2M and HEMS Security}
+\label{subsec:implications_residential_m2m}
+
+The literature reviewed above demonstrates three important characteristics of cybersecurity risk in connected environments. First, weak authentication and inadequate access-control mechanisms can enable unauthorized control, privacy violations, device compromise, and fraud. Second, compromised connected devices can become components of larger attack infrastructures, such as botnets, thereby extending the consequences beyond the original device or network. Third, the financial consequences of cyber incidents can include direct losses, operational disruption, recovery expenditure, reputational damage, and indirect societal costs.
+
+However, an important limitation emerges from the existing evidence. The majority of published financial estimates concern general cybercrime, enterprise incidents, IoT compromise, fraud, or critical infrastructure rather than security failures occurring specifically within residential Machine-to-Machine (M2M) communication protocols. Direct estimates of losses caused specifically by insecure Local Area Network (LAN) communication or unauthenticated residential control messages remain limited. The available evidence therefore provides strong justification for addressing security weaknesses in connected residential systems, but it does not establish a precise monetary cost for attacks against a particular HEMS protocol.
+
+This distinction is important for the present research. The objective is not to attribute the global economic losses reported in the literature directly to residential HEMS or to ECHONET Lite. Instead, the literature establishes the broader consequences of insecure connected systems and provides evidence that inadequate authentication, unauthorized communication, and insufficient protection of networked devices can produce measurable operational, privacy, and financial harm. Within this context, the security of the communication mechanism itself becomes an important research concern, particularly where a protocol is responsible for exchanging control messages between a HEMS controller and physical residential devices.
+
+For the present study, the literature therefore provides the motivation for examining security mechanisms at the communication-protocol level. Network segmentation, VLANs, VPNs, and other perimeter-based controls can reduce exposure, but they do not necessarily provide intrinsic authentication of individual protocol messages once an attacker has obtained access to the local network. Consequently, protocol-level mechanisms for authentication, integrity protection, and resistance to unauthorized message injection warrant specific investigation in residential M2M environments.
+
+% ============================================================
+% EVIDENCE SYNTHESIS TABLE
+% ============================================================
+
+\begin{table}[htbp]
+  \centering
+  \caption{Literature evidence on the consequences of insecure connected systems}
+  \label{tab:cybersecurity_consequences_literature}
+  \renewcommand{\arraystretch}{1.25}
+  \small
+  \begin{tabular}{p{3.0cm} p{4.1cm} p{3.8cm} p{3.2cm}}
+    \hline
+    \textbf{Category}                                                                                                      &
+    \textbf{Finding}                                                                                                       &
+    \textbf{Example Consequence or Cost}                                                                                   &
+    \textbf{Relevance to This Study}                                                                                         \\
+    \hline
+
+    Smart device compromise                                                                                                &
+    Weak authentication can enable unauthorized control, data theft, and device hijacking.                                 &
+    Privacy breaches, account compromise, and malicious device takeover.                                                   &
+    Demonstrates the importance of authentication for connected residential devices.                                         \\
+
+    Smart-home harms                                                                                                       &
+    Smart-home devices can be affected by unauthorized access, privacy intrusion, malware, and DoS attacks.                &
+    Real-world abuse and unauthorized access to domestic devices.                                                          &
+    Establishes the relevance of cybersecurity to residential IoT environments.                                              \\
+
+    IoT botnet abuse                                                                                                       &
+    Insecure IoT devices can be recruited into botnets and used against third-party systems.                               &
+    DDoS attacks and wider service disruption.                                                                             &
+    Shows that compromised residential devices may contribute to attacks beyond the local network.                           \\
+
+    Consumer-side costs                                                                                                    &
+    Compromised IoT devices can consume additional resources and degrade legitimate device use.                            &
+    Increased bandwidth consumption and impaired device/network usability.                                                 &
+    Demonstrates that compromise can impose costs on device owners as well as attack targets.                                \\
+
+    Authentication-related fraud                                                                                           &
+    Failure to properly identify and authenticate entities can contribute to fraudulent activity.                          &
+    Reported fraud losses associated with authentication failures.                                                         &
+    Provides direct support for authentication as a security requirement.                                                    \\
+
+    Typical incident costs                                                                                                 &
+    Many cyber incidents produce moderate financial losses, although indirect costs may be excluded.                       &
+    Typical incident costs below USD~200,000 in the reported evidence.                                                     &
+    Illustrates the measurable economic consequences of cybersecurity incidents.                                             \\
+
+    Extreme cyber losses                                                                                                   &
+    Cyber losses exhibit a heavy-tailed distribution in which a small number of incidents cause exceptionally high losses. &
+    Some reported events exceed USD~1 billion.                                                                             &
+    Demonstrates the importance of considering high-impact security failures.                                                \\
+
+    Critical-infrastructure consequences                                                                                   &
+    Cyber incidents affecting connected operational environments can cause substantial disruption.                         &
+    Potential million-dollar losses and service disruption.                                                                &
+    Connects communication security with cyber-physical operational reliability.                                             \\
+
+    Large-scale malware events                                                                                             &
+    Highly connected environments can permit compromise to propagate across organizations.                                 &
+    NotPetya-related losses of approximately USD~300 million for major affected organizations.                             &
+    Illustrates the potential systemic consequences of interconnected systems.                                               \\
+
+    DDoS-related costs                                                                                                     &
+    Service disruption can generate substantial direct financial costs.                                                    &
+    DDoS-related losses can reach tens of thousands of dollars per hour.                                                   &
+    Demonstrates the wider consequences of compromised IoT devices and botnets.                                              \\
+
+    Indirect and hidden costs                                                                                              &
+    Reported incident figures may omit lost revenue, reputation, trust, consumer harm, and social costs.                   &
+    Total economic burden may exceed directly reported losses.                                                             &
+    Highlights limitations in interpreting published cybercrime cost estimates.                                              \\
+
+    Global cybercrime estimates                                                                                            &
+    Published estimates vary substantially because different studies use different definitions and measurement approaches. &
+    Global estimates range from hundreds of billions to trillions of dollars.                                              &
+    Provides context but should not be interpreted as LAN- or protocol-specific losses.                                      \\
+
+    Network-level mitigation                                                                                               &
+    Network segmentation and secure local networking can reduce exposure to connected-system threats.                      &
+    VLANs and penetration testing are identified as mitigation measures.                                                   &
+    Shows the role of network controls while motivating complementary protocol-level security.                               \\
+
+    \hline
+  \end{tabular}
+\end{table}
+
+
 \section{The \texttt{*.bib} File}
 First of all, bear in mind that your bibliography file (\verb|*.bib| files) is like a database.  That means you can maintain a centralised list, and reuse it for all your publications.  \LaTeX{} will only list sources that you actually cite in the text for each document, according to the bibliography and citation style you select in each document.  But you can still hack it so that your own publications are listed, even if you did not cite it.
 
