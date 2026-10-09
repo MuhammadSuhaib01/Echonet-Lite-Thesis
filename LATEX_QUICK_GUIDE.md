@@ -105,7 +105,7 @@ Comments begin with `%`. LaTeX ignores everything after `%` on that line:
 
 ## 5. Citations and References
 
-This template uses APA-style `biblatex`. Add each source to `mybib.bib` and cite its key in your chapter.
+This template uses APA-style `apacite` with `natbib` and BibTeX. Add each source to `mybib.bib` and cite its key in your chapter.
 
 ```latex
 According to \citet{tanakaEvaluationSecureEndtoend2018}, the system ...
@@ -118,7 +118,7 @@ Several studies support this conclusion \citep{sarker2021progress,phamMatterECHO
 - `\citet{key}`: author name appears in the sentence.
 - `\citep{key}`: citation appears in parentheses.
 - `\citep[p.~12]{key}`: adds a page number or note.
-- `\printbibliography[heading=bibintoc]`: prints the reference list and adds it to the Table of Contents. It is already in `usmthesis.tex`.
+- Run `powershell -ExecutionPolicy Bypass -File scripts\\build-thesis.ps1` from the project root after adding or changing citations. The script checks citation keys, runs BibTeX, and performs the required LaTeX passes.
 
 Example entry in `mybib.bib`:
 
@@ -126,8 +126,8 @@ Example entry in `mybib.bib`:
 @article{example2026,
   author       = {Surname, Given Name},
   title        = {Title of the Article},
-  journaltitle = {Journal Name},
-  date         = {2026},
+  journal      = {Journal Name},
+  year         = {2026},
   volume       = {10},
   number       = {2},
   pages        = {1--20},
