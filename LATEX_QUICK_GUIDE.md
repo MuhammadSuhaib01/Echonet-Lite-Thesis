@@ -119,6 +119,8 @@ Several studies support this conclusion \citep{sarker2021progress,phamMatterECHO
 - `\citep{key}`: citation appears in parentheses.
 - `\citep[p.~12]{key}`: adds a page number or note.
 - Run `powershell -ExecutionPolicy Bypass -File scripts\\build-thesis.ps1` from the project root after adding or changing citations. The script checks citation keys, runs BibTeX, and performs the required LaTeX passes.
+- The checker reads only active (non-commented) `\\cite...{}` commands from the files included by `usmthesis.tex`. Every active key must exist in `mybib.bib` exactly, including capitalization.
+- Keep the citation key in the chapter and the entry key in `mybib.bib` identical. Do not fix a missing-key error by editing generated files in `build/` or backup `.bbl` files.
 
 Example entry in `mybib.bib`:
 
@@ -248,16 +250,34 @@ These characters have a special meaning in LaTeX and must be escaped:
 
 For a URL, use `\url{https://example.com}`.
 
-## 12. Compile the Thesis on Windows
+## 12. Compile and Troubleshoot on Windows
 
 Open PowerShell in the thesis root folder, the folder containing `usmthesis.tex`, and run:
 
 ```powershell
-pdflatex -interaction=nonstopmode usmthesis.tex
-biber usmthesis
-pdflatex -interaction=nonstopmode usmthesis.tex
-pdflatex -interaction=nonstopmode usmthesis.tex
+powershell -ExecutionPolicy Bypass -File scripts\build-thesis.ps1
 ```
+
+Use the project script for the normal build. It performs these steps in order:
+
+1. Checks active citation keys against `mybib.bib`.
+2. Runs `pdflatex` once to generate auxiliary files.
+3. Runs `bibtex` for `usmthesis` and `own`.
+4. Runs `pdflatex` twice more so citations, references, tables, and cross-references settle.
+5. Writes the full build output to `build/build.log`.
+
+Use the following commands according to the situation:
+
+| Situation | Command | Purpose |
+|---|---|---|
+| Normal build after editing `.tex` or `.bib` files | `powershell -ExecutionPolicy Bypass -File scripts\build-thesis.ps1` | Performs citation checking and the complete BibTeX/LaTeX build. |
+| Check only for missing citation keys | `powershell -ExecutionPolicy Bypass -File scripts\check-citations.ps1` | Quickly identifies active citation keys missing from `mybib.bib`. |
+| Inspect detailed build diagnostics | `Get-Content build\build.log` | Shows the full output saved by the build script. |
+| Rebuild after changing a citation | Run the normal build script | Regenerates BibTeX data and resolves the citation. |
+
+If the checker reports `Missing bibliography keys`, add a correctly verified entry to `mybib.bib` using the exact reported key, then run the checker again. If the citation is only draft text, comment out the citation or remove it from the active chapter instead. Do not add fabricated author, title, DOI, or year information.
+
+This project uses BibTeX through `build-thesis.ps1`, not `biber`. Running `pdflatex` alone may leave citations unresolved, and running `biber usmthesis` is not the correct command for this template.
 
 Run all four commands after changing citations, labels, the Table of Contents, figures, or tables. The final PDF is `usmthesis.pdf`.
 

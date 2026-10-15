@@ -30,6 +30,44 @@
   "latex-workshop.latex.outDir": "%DIR%/build",
   "latex-workshop.latex.autoClean.run": "onBuilt",
   "latex-workshop.latex.clean.subfolder.enabled": true,
+  "latex-workshop.linting.chktex.enabled": false,
+  "latex-workshop.latex.search.rootFiles.include": [
+    "**/usmthesis.tex"
+  ],
+  "latex-workshop.latex.search.rootFiles.exclude": [
+    "**/usmthesis_original.tex",
+    "**/usmthesis_original.md",
+    "**/build/**",
+    "**/extra/**"
+  ],
+
+  "ltex.enabled": true,
+  "ltex.enabledLanguageIds": [
+    "latex",
+    "bibtex"
+  ],
+  "ltex.disabledRules": {
+    "en-US": [
+      "ADVISE_VBG",
+      "ANY_MORE",
+      "COMMA_PARENTHESIS_WHITESPACE",
+      "CONSEQUENCES_OF_FOR",
+      "CYBER_COMPOUNDS",
+      "EN_COMPOUNDS_EVER_INCREASING",
+      "EN_COMPOUNDS_MACHINE_READABLE",
+      "EN_COMPOUNDS_MULTI_FACTOR",
+      "EN_COMPOUNDS_MULTI_VENDOR",
+      "EN_COMPOUNDS_TWENTY_FIVE",
+      "ENGLISH_WORD_REPEAT_BEGINNING_RULE",
+      "INDEPENDENTLY_FROM_OF",
+      "LARGE_NUMBER_OF",
+      "MORFOLOGIK_RULE_EN_US",
+      "POSSESSIVE_APOSTROPHE",
+      "THE_PUNCT",
+      "UPPERCASE_SENTENCE_START",
+      "WHETHER"
+    ]
+  },
 
   "files.exclude": {
     "**/.venv": true,
@@ -50,6 +88,7 @@
     "**/chapters/chap-discussion.tex": true,
     "**/chapters/chap-implementation.tex": true,
     "**/chapters/chap-literature-review.tex": true,
+    "**/usmthesis_original.tex": true,
     "**/extra md files": true
   },
 
