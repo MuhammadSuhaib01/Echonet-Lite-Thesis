@@ -122,11 +122,19 @@ Accordingly, the cybersecurity problem addressed by this research is not the com
 
 The increasing connectivity of residential devices therefore changes the security assumptions under which smart-home communication protocols were originally deployed. Smart-home networks can no longer be considered inherently trustworthy merely because communication occurs within a residential environment. The coexistence of consumer IoT devices, remote access mechanisms, heterogeneous vendors, resource-constrained appliances, and Internet-connected gateways creates a broader attack surface that requires security to be incorporated directly into communication mechanisms. For the HEMS environment examined in this study, ensuring message authentication, integrity, and freshness is consequently an important step toward preventing unauthorized control of connected appliances while maintaining the efficiency required by resource-constrained residential devices.
 
+
 \section{Research Motivation}
 
-The motivation for this research is the gap between the lightweight appliance communication model of ECHONET Lite and the security assurance required when that communication is exposed to an untrusted or remotely reachable network \citep{echonet_lite_part2,eissaDevelopingIncentiveDemand2019,murakamiApplicationECHONETLite2016}. An application-layer mechanism can make the security decision at the point where the ECHONET Lite message is parsed and interpreted.
+The motivation for this research arises from the gap between the lightweight appliance communication model of ECHONET Lite and the security assurance required when such communication is exposed to an untrusted or remotely reachable network \citep{echonet_lite_part2,eissaDevelopingIncentiveDemand2019,murakamiApplicationECHONETLite2016}. Although ECHONET Lite provides a standardized application-level communication framework for residential devices, its lightweight design does not inherently provide the message authentication, integrity, and freshness mechanisms required to protect communication against unauthorized manipulation or replay. As discussed in Sections 1.2 and 1.3, relying solely on the network environment as a trusted boundary becomes increasingly unsuitable as residential systems incorporate remote access, heterogeneous devices, and Internet-connected gateways.
 
-The proposed direction is a frame-level extension that authenticates relevant message data, detects modification, and rejects commands that fail freshness or replay validation. Its usefulness must be assessed not only by security behaviour but also by the communication and processing overhead imposed on constrained appliance nodes.
+Applying security through additional lower-layer mechanisms can provide protection, but may also introduce processing, communication, and implementation overhead that is not necessarily well suited to resource-constrained residential appliances. This creates a need to investigate whether the required security properties can instead be incorporated closer to the ECHONET Lite message itself, where the security decision can be made at the point where the message is parsed and interpreted.
+
+The proposed direction is therefore a frame-level security extension that authenticates relevant message data, detects unauthorized modification, and rejects commands that fail freshness or replay validation. Its usefulness must be assessed not only in terms of its ability to provide the intended security properties, but also in terms of the communication and processing overhead imposed on constrained appliance nodes.
+
+
+% The motivation for this research is the gap between the lightweight appliance communication model of ECHONET Lite and the security assurance required when that communication is exposed to an untrusted or remotely reachable network \citep{echonet_lite_part2,eissaDevelopingIncentiveDemand2019,murakamiApplicationECHONETLite2016}. An application-layer mechanism can make the security decision at the point where the ECHONET Lite message is parsed and interpreted.
+
+% The proposed direction is a frame-level extension that authenticates relevant message data, detects modification, and rejects commands that fail freshness or replay validation. Its usefulness must be assessed not only by security behaviour but also by the communication and processing overhead imposed on constrained appliance nodes.
 
 \section{Problem Statement}
 
@@ -144,19 +152,49 @@ The objectives of this research are to achieve the following:
 
 \section{Scope and Limitations}
 
-The study is limited to application-layer protection for ECHONET Lite messages. It focuses on message authentication, data integrity, freshness or replay validation, and the processing overhead associated with the proposed extension. It does not claim to solve every security problem in a smart grid or smart home. Physical-layer attacks, radio interference, appliance hardware tampering, general-purpose public-key infrastructure, and the security of unrelated smart-home protocols are outside the primary scope unless required for comparison.
+The study is limited to application-layer protection for ECHONET Lite messages exchanged within a residential energy-management environment. It focuses on message authentication, data integrity, freshness or replay validation, and the processing and communication overhead associated with the proposed security extension. The study does not claim to address every security problem in a smart grid or smart-home environment. Physical-layer attacks, radio interference, appliance hardware tampering, general-purpose public-key infrastructure, and the security of unrelated smart-home communication protocols are outside the primary scope unless required for comparison.
 
-The evaluation results will be bounded by the selected simulation, emulation, or hardware environment. Results obtained from that environment should therefore be interpreted as evidence about the tested implementation and workload, rather than as universal performance values for every ECHONET Lite appliance.
+The evaluation is limited to the selected simulation, emulation, or hardware environment and the workloads defined for testing the proposed mechanism. Consequently, the evaluation results should be interpreted as evidence of the security behaviour and performance of the tested implementation under the selected conditions, rather than as universal performance values applicable to every ECHONET Lite appliance or residential deployment.
 
 \section{Research Contribution}
 
-The intended contribution is an application-layer security extension for ECHONET Lite that connects protocol-level message processing with authentication, integrity, and replay validation requirements. A second contribution is an implementation and evaluation procedure that makes the overhead of the extension observable. Contribution claims will be finalized only after the design and evaluation results have been reported; design features or performance values are not presented here as empirical findings.
+The intended contribution of this research is an application-layer security extension for ECHONET Lite that incorporates message authentication, data integrity verification, and freshness or replay validation into the protocol communication process. The study also aims to provide an implementation and evaluation procedure for examining the security behaviour and performance overhead introduced by the proposed extension.
+
+The contribution of the proposed mechanism will be assessed through the security and performance results obtained during the evaluation. Therefore, specific performance improvements, security effectiveness, or deployment benefits are not presented in this chapter as established empirical findings. Such claims will be supported only after the proposed mechanism has been implemented and evaluated.
 
 \section{Research Steps}
 
-The research follows five stages. First, the ECHONET Lite message model and relevant threats are analysed to derive security and performance requirements. Second, the authentication and freshness mechanism is designed. Third, the mechanism is implemented and integrated with a standard ECHONET Lite communication path. Fourth, legitimate and adversarial message exchanges are tested in the selected evaluation environment. Finally, the results are analysed using the defined security and performance measures.
+The research is organized into five stages: threat and requirements analysis, security mechanism design, implementation and integration, evaluation, and results analysis. The first stage examines the ECHONET Lite communication model and relevant cybersecurity threats to derive the security and performance requirements for the proposed mechanism. The second stage develops the security mechanism based on the identified requirements, including message authentication, integrity protection, and freshness or replay validation. The third stage implements the proposed mechanism and integrates it with the selected ECHONET Lite communication environment. The fourth stage evaluates the mechanism using legitimate and adversarial message exchanges under the defined evaluation conditions. Finally, the fifth stage analyses the results using the established security and performance measures to assess the effectiveness and overhead of the proposed mechanism. Figure~\ref{fig:research-steps} illustrates the five research stages and their associated activities.
+
+\begin{figure}[htb!]
+  \centering
+  % TODO: Insert research steps diagram here.
+  \includegraphics[width=0.90\textwidth]{chapters/figures/placeholder.png}
+  \caption{Research steps and associated activities.}
+  \label{fig:research-steps}
+\end{figure}
+
 
 \section{Thesis Organization}
 
-The remaining chapters will review ECHONET Lite and related security mechanisms, present the proposed extension and its implementation, discuss the evaluation results and limitations, and conclude with the study's findings and future work.
+The remainder of this thesis is organized into chapters that progressively develop the research from its theoretical foundation to implementation and evaluation. Chapter 2 reviews the ECHONET Lite protocol, its communication and message structure, and related security mechanisms and research relevant to securing smart-home and residential energy-management communication. Chapter 3 presents the proposed security extension, including its design, security requirements, message-processing procedure, and implementation approach. Chapter 4 describes the evaluation methodology and presents the experimental or simulation results, including the security behaviour and performance overhead of the proposed mechanism. Chapter 5 discusses the findings of the study, summarizes the main conclusions, identifies the limitations of the research, and outlines possible directions for future work.
+
+
+% \section{Scope and Limitations}
+
+% The study is limited to application-layer protection for ECHONET Lite messages. It focuses on message authentication, data integrity, freshness or replay validation, and the processing overhead associated with the proposed extension. It does not claim to solve every security problem in a smart grid or smart home. Physical-layer attacks, radio interference, appliance hardware tampering, general-purpose public-key infrastructure, and the security of unrelated smart-home protocols are outside the primary scope unless required for comparison.
+
+% The evaluation results will be bounded by the selected simulation, emulation, or hardware environment. Results obtained from that environment should therefore be interpreted as evidence about the tested implementation and workload, rather than as universal performance values for every ECHONET Lite appliance.
+
+% \section{Research Contribution}
+
+% The intended contribution is an application-layer security extension for ECHONET Lite that connects protocol-level message processing with authentication, integrity, and replay validation requirements. A second contribution is an implementation and evaluation procedure that makes the overhead of the extension observable. Contribution claims will be finalized only after the design and evaluation results have been reported; design features or performance values are not presented here as empirical findings.
+
+% \section{Research Steps}
+
+% The research follows five stages. First, the ECHONET Lite message model and relevant threats are analysed to derive security and performance requirements. Second, the authentication and freshness mechanism is designed. Third, the mechanism is implemented and integrated with a standard ECHONET Lite communication path. Fourth, legitimate and adversarial message exchanges are tested in the selected evaluation environment. Finally, the results are analysed using the defined security and performance measures.
+
+% \section{Thesis Organization}
+
+% The remaining chapters will review ECHONET Lite and related security mechanisms, present the proposed extension and its implementation, discuss the evaluation results and limitations, and conclude with the study's findings and future work.
 

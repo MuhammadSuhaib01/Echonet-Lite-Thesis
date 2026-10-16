@@ -279,9 +279,21 @@ If the checker reports `Missing bibliography keys`, add a correctly verified ent
 
 This project uses BibTeX through `build-thesis.ps1`, not `biber`. Running `pdflatex` alone may leave citations unresolved, and running `biber usmthesis` is not the correct command for this template.
 
-Run all four commands after changing citations, labels, the Table of Contents, figures, or tables. The final PDF is `usmthesis.pdf`.
+### How the Table of Contents is generated
 
-If you use the LaTeX Workshop extension in VS Code, choose the build recipe that uses `pdflatex` and `biber`, not a recipe that uses `bibtex`.
+The Table of Contents is produced by the `\tableofcontents` command in `usmthesis.tex`. LaTeX collects numbered `\chapter`, `\section`, `\subsection`, and `\subsubsection` headings while compiling the thesis and writes them to `build/usmthesis.toc`. The class sets `tocdepth` to `3`, so all four of those heading levels are included.
+
+The contents are read on a later LaTeX pass. Therefore, after adding, deleting, renaming, or reordering headings, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\build-thesis.ps1
+```
+
+The script performs the required repeated LaTeX passes and directly refreshes the ToC in the generated PDF. Do not edit `build/usmthesis.toc` manually; it is a generated file. If a chapter does not appear, first confirm that its `\include{...}` line is uncommented in `mainchaps.tex`. Unnumbered headings such as `\section*{...}` do not enter the ToC automatically unless an explicit `\addcontentsline` is added.
+
+Run the build script after changing citations, labels, headings, figures, tables, or the order of included chapters. The final PDF is `build/usmthesis.pdf`.
+
+If you use the LaTeX Workshop extension in VS Code, choose a recipe that uses `bibtex`, not `biber`, or use the repository build script so citation and ToC updates follow the same process.
 
 ## 13. Clean Build Checklist
 
@@ -292,7 +304,7 @@ Before submission:
 3. Search all `.tex` files for `TODO`, `??`, and `Citation Needed`.
 4. Check that every `\citep{...}` key exists in `mybib.bib`.
 5. Check that every `\ref{...}` label exists.
-6. Compile with the four-command sequence above.
+6. Run `powershell -ExecutionPolicy Bypass -File scripts\build-thesis.ps1`.
 7. Open the PDF and check the Table of Contents, lists, page numbers, figures, tables, references, and appendices.
 8. Read the compiler output for `undefined`, `missing`, `error`, and `warning` messages.
 
@@ -301,10 +313,10 @@ Before submission:
 | Message or symptom | Likely cause | Fix |
 |---|---|---|
 | `Undefined control sequence` | Misspelled command or missing package | Check spelling and use packages already loaded by the template |
-| `Citation ... undefined` | Key is absent or misspelled | Match the key with `mybib.bib`, run `biber`, then run LaTeX twice |
+| `Citation ... undefined` | Key is absent or misspelled | Match the key with `mybib.bib`, then run `powershell -ExecutionPolicy Bypass -File scripts\build-thesis.ps1` |
 | `Reference ... undefined` or `??` | Missing label or too few compilations | Add `\label{...}` and compile again |
 | `File ... not found` | Wrong file name or path | Check capitalization, spelling, and folder location |
-| PDF has old references or contents | Auxiliary files were not refreshed | Run the complete four-command sequence |
+| PDF has old references or contents | Auxiliary files were not refreshed | Run `powershell -ExecutionPolicy Bypass -File scripts\build-thesis.ps1` |
 | `Missing $ inserted` | Math symbols were used outside math mode | Put mathematics between `$...$` or use an equation environment |
 | `Missing }` or `Runaway argument` | An opening `{` has no matching `}` | Check the most recently edited command or paragraph |
 
