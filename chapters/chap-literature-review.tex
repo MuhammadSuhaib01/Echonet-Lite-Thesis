@@ -1,271 +1,674 @@
-\chapter{Citations and Bibliography}\label{chap:review}
+% =====================================================================
+% CHAPTER 2 -- LITERATURE REVIEW
+% Required packages (add to preamble if not already loaded):
+%   \usepackage{booktabs,array,tabularx}
+% Citation commands: \cite{key} is used throughout; if your template uses
+% biblatex, replace with \parencite / \textcite as appropriate.
+% Companion file: references-chapter2.bib
+% =====================================================================
+\chapter{LITERATURE REVIEW}
+\label{ch:litreview}
 
-Echonet lite does not have native security measures due to this it relies on the security of the underlying network. Security measures such as encryption and authentication are not built into the protocol itself, whereas are delegated to lower layers of the network stack, starting from layer 4 to layer 2 entirely depending upon RFC 5191, DTLS, or IPsec. \cite{echonet_lite_part2}
+This chapter reviews the literature and technical specifications that underpin the research problem defined in Chapter~1. Section~\ref{sec:lit-intro} states the aims and scope of the review. Section~\ref{sec:echonet-background} describes the ECHONET Lite protocol, covering its position in the communication stack, its object model, its frame structure and its service codes. Section~\ref{sec:echonet-security-provision} examines precisely what the specification and its accompanying guidelines state about security. Section~\ref{sec:criteria} defines the comparison criteria used in this review. Section~\ref{sec:comparison} compares ECHONET Lite with four protocols that are widely used in smart-home and Internet of Things (IoT) deployments, namely Matter, the Constrained Application Protocol (CoAP), Message Queuing Telemetry Transport (MQTT) and Zigbee. Section~\ref{sec:flaws} presents the central analysis of this chapter, a systematic account of the security limitations of ECHONET Lite at the application layer. Section~\ref{sec:related-echonet} reviews existing research on securing ECHONET Lite, Section~\ref{sec:gap} identifies the research gap and derives the design requirements for the proposed mechanism, and Section~\ref{sec:ch2-summary} summarises the chapter.
 
-This chapter should have been a survey on the history of \TeX{} and \LaTeX{}, and a comparison to conventional word processors in preparing academic documents.  Due to lack of time on the author's part, and also the abundance of such discussions on the web, we look at ways to prepare the bibliography and citations instead.
+%--------------------------------------------------------------------
+\section{Introduction}
+\label{sec:lit-intro}
 
+Smart-home communication protocols are rarely judged on security alone. Their designers must reconcile interoperability, low implementation cost and tolerance of constrained hardware with the need to protect messages that can change the state of physical equipment. The protocols reviewed in this chapter resolve this tension in different ways. Some specify cryptographic protection as part of the protocol, some delegate it to a transport or link layer, and some leave it to the implementer \cite{Tournier2020,Rizzardi2022}. Understanding these differences is a prerequisite for deciding where, and how, security should be added to ECHONET Lite.
 
-% ============================================================
-% SECTION: Cybersecurity Consequences and Economic Impact
-% ============================================================
+The review has three purposes. The first is to establish, from the primary specification, what ECHONET Lite does and does not provide at the message level. The second is to position ECHONET Lite against contemporary protocols in a way that is fair, which requires comparing like with like, because the protocols operate at different levels of the communication stack. The third is to consolidate the observed weaknesses into a structured account of the security limitations of ECHONET Lite, in the same way that the security deficiencies of an unprotected industrial messaging protocol can be analysed against the properties of authentication, integrity and confidentiality.
 
-\section{Cybersecurity Consequences and Economic Impact of Insecure Connected Systems}
-\label{sec:cybersecurity_economic_impact}
+Wherever a statement in this chapter is taken directly from a specification or published study, it is cited. Where a statement is an analytical inference drawn by the author from the specification text, for example that a particular field cannot serve a security purpose, it is explicitly identified as such so that the reader can distinguish between what the standards document states and what is concluded from it.
 
-The increasing deployment of connected devices has expanded the potential consequences of cybersecurity weaknesses beyond conventional information-security concerns. In residential and Internet of Things (IoT) environments, inadequate authentication, insecure interfaces, and poorly protected communication channels can enable unauthorized access, device compromise, privacy violations, service disruption, and, in some cases, physical safety consequences. The literature therefore indicates that the security of connected devices must be considered not only from the perspective of confidentiality and data protection, but also in terms of operational reliability, financial loss, and the potential consequences of unauthorized control.
+%--------------------------------------------------------------------
+\section{The ECHONET Lite Protocol}
+\label{sec:echonet-background}
 
-% REFERENCE: Almani & Furnell, "Assessing the Security Vulnerabilities and Countermeasures of Connected and Smart Devices" (2025)
-Almani and Furnell identify weak authentication, insecure interfaces, and inadequate security mechanisms as important vulnerabilities affecting connected and smart devices. Their discussion further highlights that vulnerabilities in IoT environments may extend beyond conventional data-security concerns to include safety-related consequences when compromised devices interact with physical processes \cite{AlmaniFurnell2025}. This observation is particularly relevant to residential cyber-physical environments, where connected devices can influence physical equipment and household operations.
+\subsection{Origin and Deployment Context}
 
-% REFERENCE: Buil-Gil et al., "The digital harms of smart home devices" (2022)
-The security risks associated with smart-home environments are further demonstrated by Buil-Gil et al., who identify a range of digital harms associated with connected domestic devices, including unauthorized access, privacy intrusion, hacking, malware, and denial-of-service attacks \cite{BuilGil2022}. Their work also documents real-world cases of smart-home device abuse, demonstrating that vulnerabilities in domestic connected devices are not merely theoretical security concerns.
+ECHONET Lite is the communication specification of the ECHONET Consortium for home and building energy management. It was developed to connect appliances, sensors and energy equipment to controllers such as Home Energy Management System (HEMS) gateways \cite{Murakami2016,Isshiki2015}. Its deployment in Japan has been reinforced by national policy. The Japan Smart Community Alliance adopted ECHONET Lite over IPv6 as the standardised interface to the smart meter, and over 48 million smart meters in Japan have consequently been described as functioning as home appliances that deliver consumption data to the home \cite{Isshiki2015}. ECHONET Lite therefore occupies a role that is closer to energy infrastructure than to general consumer convenience. A weakness in its message handling carries implications for demand-side energy management rather than only for individual appliances.
 
-The consequences of device compromise can extend beyond the individual device or household. Insecure IoT devices may be incorporated into botnets and subsequently used to conduct attacks against external systems. This creates a situation in which the owner of a compromised device may simultaneously become a victim and an unwitting participant in a broader cyberattack.
+\subsection{Position in the Communication Stack}
+\label{sec:echonet-stack}
 
-% REFERENCE: Fong et al., "Quantifying Consumer Costs of Insecure Internet of Things Devices"
-Fong et al. examine the consumer-side costs associated with insecure IoT devices and demonstrate that compromised devices can impose additional resource consumption and degrade the experience of legitimate users \cite{Fong}. Such consequences include increased bandwidth consumption and impaired device or network performance. These findings are important because the consequences of insecure IoT deployments are not necessarily limited to the organization or infrastructure directly targeted by an attacker.
+ECHONET Lite is specified as a communication middleware. Part~II of the specification places it ``between application software and lower-layer communication software'' and defines its processing block as a function that does not depend on layers~1 to~4 of the network stack \cite{ECHONETPart2}. This design choice is the source of its flexibility, since the same message format can be carried over different media, and it is also the root of the security situation examined later in this chapter, because the specification defines no security function of its own at this level.
 
-% REFERENCE: Kagita et al., "A Review on Cyber Crimes on the Internet of Things" (2020)
-Kagita et al. similarly discuss the role of insecure IoT devices in cybercrime, including their exploitation as components of botnets and their use as proxies for distributed denial-of-service (DDoS) attacks \cite{Kagita2020}. Their review also provides broader evidence of the scale and frequency of cybercrime affecting IoT environments. This establishes that weakly secured connected devices can provide attackers with an accessible entry point into larger attack infrastructures.
+For IP-based operation, the specification fixes the transport behaviour of the middleware. The destination port of a UDP packet is always 3610, and an ECHONET Lite node listens for both unicast and multicast packets on that port. The IPv4 multicast address is 224.0.23.0 and the IPv6 all-node multicast address ff02::1 is used for IPv6 \cite{ECHONETPart2}. The specification also permits TCP, in which case the destination port is again 3610 and the response to a request is returned over the same connection \cite{ECHONETPart2}. A fixed, well-known port and multicast group allow devices to discover one another without configuration. As Section~\ref{sec:flaws} shows, the same property makes the services easy for an adversary to locate.
 
-The relationship between authentication and financial loss is particularly important when considering the security of communication systems. Although many reported cyber-loss figures encompass broader categories of cybercrime rather than residential M2M communication specifically, the literature provides evidence that inadequate authentication can contribute directly to unauthorized access and fraudulent activity.
+\subsection{Object Model}
 
-% REFERENCE: Calderon & Onita, "Big Data and the Perceived Expectations Gap in Digital Authentication Processes" (2017)
-Calderon and Onita provide evidence connecting failures in digital authentication with financial fraud, illustrating the economic consequences that may arise when entities cannot be reliably identified and authenticated \cite{CalderonOnita2017}. This relationship is particularly relevant to communication protocols in which a device or controller must determine whether an incoming message originates from an authorized entity.
+ECHONET Lite adopts an object-oriented device model. Each node hosts one or more ECHONET objects, and each object is identified by a three-byte object code that is carried in the frame as the source ECHONET object (SEOJ) or destination ECHONET object (DEOJ) \cite{ECHONETPart2}. The state and capabilities of an object are exposed as properties, each identified by a one-byte ECHONET property code (EPC), with the value carried in the property value data (EDT). The standardisation of device classes and properties allows a controller to operate equipment from different manufacturers without bespoke integration \cite{Murakami2016,Pham2024}. Pham et al.\ provide a direct comparison of the architectures and features of ECHONET Lite and Matter, which share the aim of multi-vendor interoperability \cite{Pham2024}.
 
-The financial consequences of cyber incidents also vary considerably in magnitude. While some incidents result in relatively limited losses, a small proportion of events can produce exceptionally large financial consequences. This distribution is important when assessing the potential impact of security weaknesses because average incident costs alone may fail to represent the risk associated with severe but less frequent events.
+\subsection{Frame Structure}
+\label{sec:echonet-frame}
 
-% REFERENCE: Romanosky, "Examining the costs and causes of cyber incidents" (2016)
-Romanosky reports that many cyber incidents have costs below the levels associated with highly publicized mega-breaches, with typical incident costs reported at less than USD~200,000 and approximately 0.4\% of annual revenue \cite{Romanosky2016}. However, these values should not be interpreted as a complete measure of cyber-related harm because incident-cost estimates may exclude indirect consequences.
-
-% REFERENCE: Shevchenko et al., "The nature of losses from cyber-related events" (2022)
-The heavy-tailed nature of cyber losses is further emphasized by Shevchenko et al., who report that although a large proportion of cyber events result in comparatively moderate losses, a small number of events can exceed USD~1 billion \cite{Shevchenko2022}. This characteristic indicates that cybersecurity risk should not be evaluated solely according to the expected cost of a typical incident; low-frequency, high-impact events must also be considered.
-
-Examples from critical and safety-sensitive environments further illustrate the potential consequences of compromise.
-
-% REFERENCE: Williams et al., "Cybersecurity Risks in a Pandemic" (2020)
-Williams et al. discuss cybersecurity incidents in healthcare environments and provide examples of direct financial losses and operational disruption, including ransomware-related incidents involving healthcare organizations \cite{Williams2020}. Their discussion also identifies network segmentation, including the use of virtual local area networks (VLANs), as a mitigation strategy. Such measures illustrate the importance of protecting systems at the network level; however, network-level containment does not necessarily provide authentication or message integrity within an application-layer protocol.
-
-% REFERENCE: Riggs et al., "Impact, Vulnerabilities, and Mitigation Strategies for Cyber-Secure Critical Infrastructure" (2023)
-Riggs et al. extend this concern to critical infrastructure, where cyber incidents can produce substantial service disruption and financial consequences \cite{Riggs2023}. Their work emphasizes the continuing importance of cybersecurity for interconnected operational environments. Although critical infrastructure and residential HEMS deployments differ substantially in scale and architecture, both involve network-connected systems whose compromise may influence physical operations.
-
-% REFERENCE: Taddeo, "Three Ethical Challenges of Applications of Artificial Intelligence in Cybersecurity" (2019)
-The potential magnitude of cyber-related losses is further illustrated by large-scale malware incidents. Taddeo discusses the NotPetya attack and the substantial financial consequences experienced by major organizations, including Merck, Maersk, and FedEx, with reported losses of approximately USD~300 million for each organization \cite{Taddeo2019}. Such incidents demonstrate how compromise within interconnected environments can propagate beyond an individual system and produce substantial organizational consequences.
-
-Cybersecurity costs also extend beyond immediate technical recovery or direct financial loss. Reputational damage, business interruption, loss of consumer trust, and broader societal consequences may not be captured adequately by conventional incident-cost measurements.
-
-% REFERENCE: Sviatun et al., "Combating Cybercrime: Economic and Legal Aspects" (2021)
-Sviatun et al. emphasize that the economic consequences of cybercrime include both direct and indirect losses and that reported figures may fail to capture the complete burden associated with cyber incidents \cite{Sviatun2021}. This distinction is important when interpreting published cybercrime statistics because measured losses may represent only a subset of the actual economic and social impact.
-
-% REFERENCE: Abrardi et al., "The economics of cyber risk" (2025)
-Abrardi et al. similarly discuss the broader economic consequences of cyber risk, including service disruption, DDoS-related costs, and market or reputational effects \cite{Abrardi2025}. Their discussion demonstrates that cyber incidents may generate costs that extend well beyond the immediate technical damage to a compromised device or system.
-
-% REFERENCE: Lukošiūtė et al., "Global Cybercrime Damages" (2026)
-The difficulty of estimating cybercrime losses is also reflected in the variation among published global estimates. Lukošiūtė et al. discuss different categories of cybercrime-related costs, including direct losses, incident response, defensive expenditure, and indirect consequences \cite{Lukosiute2026}.
-
-% REFERENCE: Cremer et al., "Cyber risk and cybersecurity: a systematic review of data availability" (2022)
-Cremer et al. similarly highlight the challenges associated with obtaining consistent and comparable cyber-risk data and report substantial variation in available global cost estimates \cite{Cremer2022}. Consequently, global cybercrime figures should be interpreted as broad estimates rather than precise measurements of losses attributable to a particular technology, protocol, or attack mechanism.
-
-% REFERENCE: Sharif & Mohammed, "A literature review of financial losses statistics for cyber security and future trend" (2022)
-Sharif and Mohammed provide a broader review of cybersecurity financial-loss statistics and report increasing numbers of security incidents together with substantial projected global losses \cite{SharifMohammed2022}. These findings provide additional evidence of the increasing economic significance of cybersecurity failures.
-
-National and sector-specific statistics provide further evidence of the continuing burden of cybercrime.
-
-% REFERENCE: Goonatilake & Ortiz, "Rise of Computer-Related Crimes" (2026)
-Goonatilake and Ortiz examine recent computer-related crime trends and report substantial growth in complaint-based losses, including USD~16.6 billion in reported losses associated with the U.S. Internet Crime Complaint Center (IC3) in 2024 \cite{GoonatilakeOrtiz2026}. Such figures provide an indication of the scale of reported cybercrime, although complaint-based statistics should not be interpreted as a complete measurement of total societal losses.
-
-% REFERENCE: Eling et al., "The Economic Impact of Extreme Cyber Risk Scenarios" (2022)
-Eling et al. investigate extreme cyber-risk scenarios and demonstrate the importance of considering high-impact events when evaluating the economic consequences of cyber risk \cite{Eling2022}. Their work complements studies focused on average incident costs by emphasizing the possibility of exceptionally severe outcomes.
-
-% REFERENCE: Riek & Böhme, "The costs of consumer-facing cybercrime" (2018)
-From a consumer perspective, Riek and Böhme examine the costs associated with consumer-facing cybercrime and highlight challenges in measuring both losses and expenditure on protection \cite{RiekBohme2018}. This distinction is relevant to smart-home environments because consumers may incur costs both from security incidents themselves and from measures adopted to protect connected devices.
-
-% REFERENCE: Taman, "Impacts of Financial Cybercrime on Institutions and Companies" (2024)
-Taman further discusses the financial consequences of cybercrime for institutions and companies, reinforcing the observation that cybersecurity failures can produce substantial economic effects beyond the immediate technical compromise \cite{Taman2024}.
-
-% REFERENCE: Makhalina & Makhalin, "Digitalization of business increases the costs of information security" (2020)
-Makhalina and Makhalin examine the relationship between increasing digitalization and information-security costs, highlighting the growing volume of cyber threats and associated recovery and security expenditure \cite{MakhalinaMakhalin2020}.
-
-\subsection{Implications for Residential M2M and HEMS Security}
-\label{subsec:implications_residential_m2m}
-
-The literature reviewed above demonstrates three important characteristics of cybersecurity risk in connected environments. First, weak authentication and inadequate access-control mechanisms can enable unauthorized control, privacy violations, device compromise, and fraud. Second, compromised connected devices can become components of larger attack infrastructures, such as botnets, thereby extending the consequences beyond the original device or network. Third, the financial consequences of cyber incidents can include direct losses, operational disruption, recovery expenditure, reputational damage, and indirect societal costs.
-
-However, an important limitation emerges from the existing evidence. The majority of published financial estimates concern general cybercrime, enterprise incidents, IoT compromise, fraud, or critical infrastructure rather than security failures occurring specifically within residential Machine-to-Machine (M2M) communication protocols. Direct estimates of losses caused specifically by insecure Local Area Network (LAN) communication or unauthenticated residential control messages remain limited. The available evidence therefore provides strong justification for addressing security weaknesses in connected residential systems, but it does not establish a precise monetary cost for attacks against a particular HEMS protocol.
-
-This distinction is important for the present research. The objective is not to attribute the global economic losses reported in the literature directly to residential HEMS or to ECHONET Lite. Instead, the literature establishes the broader consequences of insecure connected systems and provides evidence that inadequate authentication, unauthorized communication, and insufficient protection of networked devices can produce measurable operational, privacy, and financial harm. Within this context, the security of the communication mechanism itself becomes an important research concern, particularly where a protocol is responsible for exchanging control messages between a HEMS controller and physical residential devices.
-
-For the present study, the literature therefore provides the motivation for examining security mechanisms at the communication-protocol level. Network segmentation, VLANs, VPNs, and other perimeter-based controls can reduce exposure, but they do not necessarily provide intrinsic authentication of individual protocol messages once an attacker has obtained access to the local network. Consequently, protocol-level mechanisms for authentication, integrity protection, and resistance to unauthorized message injection warrant specific investigation in residential M2M environments.
-
-% ============================================================
-% EVIDENCE SYNTHESIS TABLE
-% ============================================================
+The frame structure is defined in Chapter~3 of Part~II of the specification \cite{ECHONETPart2}. A Format~1 frame comprises a two-byte ECHONET Lite header (EHD1 and EHD2), a two-byte transaction identifier (TID) and the ECHONET Lite data (EDATA) field. The fields are summarised in Table~\ref{tab:echonet-frame}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Literature evidence on the consequences of insecure connected systems}
-  \label{tab:cybersecurity_consequences_literature}
-  \renewcommand{\arraystretch}{1.25}
-  \small
-  \begin{tabular}{p{3.0cm} p{4.1cm} p{3.8cm} p{3.2cm}}
-    \hline
-    \textbf{Category}                                                                                                      &
-    \textbf{Finding}                                                                                                       &
-    \textbf{Example Consequence or Cost}                                                                                   &
-    \textbf{Relevance to This Study}                                                                                         \\
-    \hline
-
-    Smart device compromise                                                                                                &
-    Weak authentication can enable unauthorized control, data theft, and device hijacking.                                 &
-    Privacy breaches, account compromise, and malicious device takeover.                                                   &
-    Demonstrates the importance of authentication for connected residential devices.                                         \\
-
-    Smart-home harms                                                                                                       &
-    Smart-home devices can be affected by unauthorized access, privacy intrusion, malware, and DoS attacks.                &
-    Real-world abuse and unauthorized access to domestic devices.                                                          &
-    Establishes the relevance of cybersecurity to residential IoT environments.                                              \\
-
-    IoT botnet abuse                                                                                                       &
-    Insecure IoT devices can be recruited into botnets and used against third-party systems.                               &
-    DDoS attacks and wider service disruption.                                                                             &
-    Shows that compromised residential devices may contribute to attacks beyond the local network.                           \\
-
-    Consumer-side costs                                                                                                    &
-    Compromised IoT devices can consume additional resources and degrade legitimate device use.                            &
-    Increased bandwidth consumption and impaired device/network usability.                                                 &
-    Demonstrates that compromise can impose costs on device owners as well as attack targets.                                \\
-
-    Authentication-related fraud                                                                                           &
-    Failure to properly identify and authenticate entities can contribute to fraudulent activity.                          &
-    Reported fraud losses associated with authentication failures.                                                         &
-    Provides direct support for authentication as a security requirement.                                                    \\
-
-    Typical incident costs                                                                                                 &
-    Many cyber incidents produce moderate financial losses, although indirect costs may be excluded.                       &
-    Typical incident costs below USD~200,000 in the reported evidence.                                                     &
-    Illustrates the measurable economic consequences of cybersecurity incidents.                                             \\
-
-    Extreme cyber losses                                                                                                   &
-    Cyber losses exhibit a heavy-tailed distribution in which a small number of incidents cause exceptionally high losses. &
-    Some reported events exceed USD~1 billion.                                                                             &
-    Demonstrates the importance of considering high-impact security failures.                                                \\
-
-    Critical-infrastructure consequences                                                                                   &
-    Cyber incidents affecting connected operational environments can cause substantial disruption.                         &
-    Potential million-dollar losses and service disruption.                                                                &
-    Connects communication security with cyber-physical operational reliability.                                             \\
-
-    Large-scale malware events                                                                                             &
-    Highly connected environments can permit compromise to propagate across organizations.                                 &
-    NotPetya-related losses of approximately USD~300 million for major affected organizations.                             &
-    Illustrates the potential systemic consequences of interconnected systems.                                               \\
-
-    DDoS-related costs                                                                                                     &
-    Service disruption can generate substantial direct financial costs.                                                    &
-    DDoS-related losses can reach tens of thousands of dollars per hour.                                                   &
-    Demonstrates the wider consequences of compromised IoT devices and botnets.                                              \\
-
-    Indirect and hidden costs                                                                                              &
-    Reported incident figures may omit lost revenue, reputation, trust, consumer harm, and social costs.                   &
-    Total economic burden may exceed directly reported losses.                                                             &
-    Highlights limitations in interpreting published cybercrime cost estimates.                                              \\
-
-    Global cybercrime estimates                                                                                            &
-    Published estimates vary substantially because different studies use different definitions and measurement approaches. &
-    Global estimates range from hundreds of billions to trillions of dollars.                                              &
-    Provides context but should not be interpreted as LAN- or protocol-specific losses.                                      \\
-
-    Network-level mitigation                                                                                               &
-    Network segmentation and secure local networking can reduce exposure to connected-system threats.                      &
-    VLANs and penetration testing are identified as mitigation measures.                                                   &
-    Shows the role of network controls while motivating complementary protocol-level security.                               \\
-
-    \hline
-  \end{tabular}
+  \caption{Fields of an ECHONET Lite Format~1 frame (adapted from \cite{ECHONETPart2})}
+  \label{tab:echonet-frame}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l c X@{}}
+    \toprule
+    \textbf{Field} & \textbf{Size} & \textbf{Description}                                                                                                    \\
+    \midrule
+    EHD1           & 1 byte        & Protocol type; \texttt{0x10} selects ECHONET Lite                                                                       \\
+    EHD2           & 1 byte        & Message format; \texttt{0x81} selects Format~1 (specified format) and \texttt{0x82} selects Format~2 (arbitrary format) \\
+    TID            & 2 bytes       & Transaction identifier used to match a response to its request; a responder copies the request's value                  \\
+    SEOJ           & 3 bytes       & Source ECHONET object                                                                                                   \\
+    DEOJ           & 3 bytes       & Destination ECHONET object                                                                                              \\
+    ESV            & 1 byte        & ECHONET Lite service code                                                                                               \\
+    OPC            & 1 byte        & Number of properties processed                                                                                          \\
+    EPC            & 1 byte        & Property code (repeated for each property)                                                                              \\
+    PDC            & 1 byte        & Length of the property value data                                                                                       \\
+    EDT            & variable      & Property value data (length given by PDC)                                                                               \\
+    \bottomrule
+  \end{tabularx}
 \end{table}
 
+Two observations are relevant to the analysis that follows. First, the specification describes the TID solely as a means by which a response is matched to the request that caused it, and it leaves the TID value unspecified for notifications and other messages that do not require a response \cite{ECHONETPart2}. Second, none of the fields in Table~\ref{tab:echonet-frame} carries a message authentication code, a sequence number intended for freshness checking, a key identifier or a cryptographic nonce. This second observation is the author's reading of the field list in the specification and is examined further in Section~\ref{sec:flaws}.
 
-\section{The \texttt{*.bib} File}
-First of all, bear in mind that your bibliography file (\verb|*.bib| files) is like a database.  That means you can maintain a centralised list, and reuse it for all your publications.  \LaTeX{} will only list sources that you actually cite in the text for each document, according to the bibliography and citation style you select in each document.  But you can still hack it so that your own publications are listed, even if you did not cite it.
+\subsection{Service Codes}
 
+The ESV field determines the semantic intent of a frame. The specification groups the codes into requests, responses and notifications, and ``response not possible'' codes \cite{ECHONETPart2}. The principal codes are listed in Table~\ref{tab:esv}.
 
-\begin{figure}[htb!]
-  \begin{lstlisting}[language={}]
-@BOOK{latex:companion,
-  title = {The {\LaTeX} Companion},
-  publisher = {Addison-Wesley},
-  year = {2004},
-  author = {Frank Mittelbach and Michel Goosens and Johannes Braams and David Carlisle and Chris Rowley},
-  series = {Addison-Wesley Series on Tools and Techniques for Computer Typesetting},
-  address = {Boston, MA, USA},
-  edition = {2nd}
-}
-\end{lstlisting}
-  \caption{A BibTeX Entry}\label{fig:bibtex}
-\end{figure}
+\begin{table}[htbp]
+  \centering
+  \caption{Principal ECHONET Lite service (ESV) codes (adapted from \cite{ECHONETPart2})}
+  \label{tab:esv}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l l X l@{}}
+    \toprule
+    \textbf{ESV}                 & \textbf{Symbol} & \textbf{Service}                             & \textbf{Broadcast permitted} \\
+    \midrule
+    \texttt{0x60}                & SetI            & Property write request, no response required & Yes                          \\
+    \texttt{0x61}                & SetC            & Property write request, response required    & No                           \\
+    \texttt{0x62}                & Get             & Property read request                        & Yes                          \\
+    \texttt{0x63}                & INF\_REQ        & Property notification request                & Yes                          \\
+    \texttt{0x6E}                & SetGet          & Property write and read request              & Yes                          \\
+    \texttt{0x71}                & Set\_Res        & Response to a write request                  & ---                          \\
+    \texttt{0x72}                & Get\_Res        & Response to a read request                   & ---                          \\
+    \texttt{0x73}                & INF             & Property notification                        & ---                          \\
+    \texttt{0x74}                & INFC            & Property notification, response required     & ---                          \\
+    \texttt{0x7A}                & INFC\_Res       & Response to INFC                             & ---                          \\
+    \texttt{0x7E}                & SetGet\_Res     & Response to write and read request           & ---                          \\
+    \texttt{0x50}--\texttt{0x5E} & *\_SNA          & Response not possible                        & ---                          \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
 
-As an example, in \verb|mybib.bib| I created a Bib\TeX{} entry with JabRef, the source text of which is shown in Figure~\ref{fig:bibtex}.
+The ESV value together with the EDT payload that it governs is what an adversary manipulates in a command-injection or replay attack. A write request (\texttt{0x60} or \texttt{0x61}) changes the state of a device, while a notification (\texttt{0x73}) reports the state of a device to a controller. The significance of Table~\ref{tab:esv} for this study is that two of the write-capable services, SetI and SetGet, may be broadcast.
 
-One thing to note about authors' names: Bib\TeX{} recognises ``Mittelbach'' as the last name for both \texttt{Frank Mittelbach} and \texttt{Mittelbach, Frank}.  So for a name like ``Lim Lian Tze'', you would have to specify it as either \texttt{Lian Tze Lim} or \texttt{Lim, Lian Tze} for Bib\TeX{} to recognise ``Lim'' as the last name correctly.  In addition, if the surname or family name of an author consists of multiple words, enclose it with braces to avoid surprises, like so: \texttt{Syed Muhammad Naquib \{al-Attas\}}.
+%--------------------------------------------------------------------
+\section{Security Provisions in the ECHONET Lite Specification}
+\label{sec:echonet-security-provision}
 
-\section{Citations using the \texttt{natbib} package}
-The \verb|usmthesis| package imports the \verb|natbib| and \verb|apacite| package which provides flexible citation mechanisms, so see its documentation for more details.  On a MiK\TeX{} installation,
-% it should be in \url{texmf/doc/latex/natbib/natbib.dvi} or \url{natbib.pdf}, in the path where you installed MiKTeX. 
-use the command prompt to issue \lstinline|mthelp --view natbib| and \lstinline|mthelp --view apacite| to access the documentation.
-On TeXLive, simply type \verb|texdoc natbib| and \lstinline|texdoc apacite| and the documentation will be displayed automatically, if it's found on your machine.
+\subsection{Security Delegated to Lower Layers}
 
-The basic citation commands are \verb|\citet| and \verb|\citep|, which stands for \emph{textual} and \emph{parenthetical} citation respectively.  They take extra arguments, too, for adding notes in the citations.
+The specification is explicit that message-level security is outside its scope. Part~II states that ``Security is not specified in the ECHONET Lite Communication Processing Block'' and that ``by applying the existing security standard technologies to Layer~4 or lower as required, security of ECHONET Lite is ensured'' \cite{ECHONETPart2}. For UDP/IP operation, it prescribes that RFC~5191 be used for node authentication, Datagram Transport Layer Security (DTLS) for encryption and tampering prevention at layer~4, and IPsec or an equivalent for encryption and tampering prevention at layer~3 \cite{ECHONETPart2}. The reader is referred to the ECHONET Lite System Design Guidelines for details.
 
-\subsection{Author-Year System}
-The default bibliography style is APA:
+The Guidelines elaborate these provisions. They state that unauthorised access is prevented by authentication and eavesdropping by encryption, and they tabulate candidate mechanisms by layer: DTLS at the transport layer, IPsec and RFC~5191 at the network layer, and WEP, WPA, WPA2, AES-CCM and IEEE~802.1X at the data-link layer \cite{ECHONETGuidelines}. They further state that security may also be ensured by ``the unique mechanism of each company'' \cite{ECHONETGuidelines}. Two features of this approach deserve emphasis. The security is conditional (``as required''), so an implementation that does not use any lower-layer protection can still conform to the specification. The security is also heterogeneous, because the choice of mechanism is left to each manufacturer or deployment.
 
-\begin{itemize}[nosep]
-  \item \verb|\citet{latex:companion}| $\to$ \citet{latex:companion}
-  \item \verb|\citet[chap.~2]{latex:companion}| $\to$ \citet[chap.~2]{latex:companion}
-  \item \verb|\citep{latex:companion}| $\to$ \citep{latex:companion}
-  \item \verb|\citep[chap.~2]{latex:companion}| $\to$ \citep[chap.~2]{latex:companion}
-  \item \verb|\citep[see also][]{latex:companion}| $\to$ \citep[see also][]{latex:companion}
-  \item \verb|\citep[see also][chap.~2]{latex:companion}| $\to$ \citep[see also][chap.~2]{latex:companion}
-  \item \verb|\citet{latex:companion,roberts}| $\to$ \citet{latex:companion,roberts}
-  \item \verb|\citep{latex:companion,roberts}| $\to$ \citep{latex:companion,roberts}
-\end{itemize}
+\subsection{Remote Control Guidance}
 
-You may also want to write only the author's name or year occassionally:
+For control that originates from outside the home, the Guidelines define a remote-control setting property (EPC \texttt{0x93}) by which a device can distinguish control through a public network. They recommend that, where a system cannot make this distinction, devices should be operated as if they were fully controlled through a public network \cite{ECHONETGuidelines}. This is a precautionary operating guideline and not an authentication mechanism, since it informs a device of a deployment condition without verifying who issued a given command.
 
-\begin{itemize}[nosep]
-  \item \verb|\citeauthor{latex:companion}| $\to$ \citeauthor{latex:companion}
-  \item \verb|\citeyear{latex:companion}| $\to$ \citeyear{latex:companion}
-  \item \verb|\citeyearpar{latex:companion}| $\to$ \citeyearpar{latex:companion}
-\end{itemize}
+\subsection{Smart-Meter Connectivity}
 
-\subsection{Numeric System}
+For the wireless route between the HEMS controller and the low-voltage smart electric energy meter, the Guidelines describe a Wi-SUN-based link in which controller connection relies on PANA authentication \cite{ECHONETGuidelines}. This is a network-access authentication. It controls which controller may attach to the meter link. It does not authenticate the individual ECHONET Lite messages exchanged afterwards. The Guidelines also record operational vulnerabilities on this path, which are discussed in Section~\ref{sec:flaws}.
 
-If you prefer the plain, numerical system, do the following steps first:
-\begin{enumerate}[nosep]
-  \item In \texttt{usmthesis.cls}, search for the line \verb|\RequirePackage[natbibapa]{apacite}| and modify it to:\\
-        \verb|\RequirePackage[numbers]{natbib}|
-  \item In \texttt{usmthesis.tex}:
-        \begin{itemize}[nosep]
-          \item modify the \verb|biblography| styles to: \\
-                \verb|\bibliographystyle{plainnat}| \\
-                \verb|\bibliographystyleown{plainnat}|
-        \end{itemize}
-        or any other number system style that you prefer.
+\subsection{Recent Industry Developments}
+
+In 2026, SEALSQ announced that it had joined the ECHONET Consortium as a public-key-infrastructure (PKI) services provider. According to the announcement, the Consortium plans to enhance its ECHONET Lite security framework with PKI, with the services covering device onboarding, certificate management, authentication and cryptographic trust \cite{SEALSQ2026}. The announcement is evidence of recognition within the Consortium that device identity is a recognised need. It is a press release rather than a specification, and it does not state that authentication, encryption or integrity protection has been incorporated into ECHONET Lite messages. Its implications for the present work are therefore limited to confirming that identity and trust management are active topics for the standard.
+
+%--------------------------------------------------------------------
+\section{Comparison Criteria}
+\label{sec:criteria}
+
+The protocols compared in this chapter differ in scope. Matter, CoAP and MQTT are application-layer protocols, ECHONET Lite is an application-level middleware with a device model, and Zigbee is a complete low-power wireless stack that includes its own network and application-support layers. A comparison that ignores these differences would be misleading. The criteria below are therefore organised, first, by the level at which each protocol operates and, second, by the security properties that it provides at that level. The security criteria follow the confidentiality, integrity and availability framing used in Chapter~1 and extend it with the freshness requirement that the threat model of this study makes explicit.
+
+\begin{enumerate}
+  \item \textbf{Operational level and role.} The layer at which the protocol functions and whether it is a messaging protocol, a data model or a complete stack.
+  \item \textbf{Transport and communication pattern.} The underlying transport and whether communication is request--response, publish--subscribe, or notification based.
+  \item \textbf{Authentication.} How the identity of a communicating party or device is established, and whether authentication is per session, per node or per message.
+  \item \textbf{Confidentiality and integrity.} Whether payloads are encrypted and authenticated, and at which layer.
+  \item \textbf{Freshness and replay resistance.} Whether the protocol provides a mechanism that allows a receiver to reject a previously valid message.
+  \item \textbf{Key and trust provisioning.} How keys or credentials are established, and whether security is mandatory or optional.
 \end{enumerate}
 
-You will then get the following citation outputs:
+% TODO (author): if you wish to cite the design-criteria approach of Jaisan's thesis
+% (lightweight, multi-featured, low overhead), add the citation here.
+
+The comparison is based on specifications and on published analyses. It does not rest on independent measurement. The security properties stated for each protocol are those that its standard defines. Implementation-level weaknesses, which affect every protocol, are reported separately where the literature documents them.
+
+%--------------------------------------------------------------------
+\section{Comparative Analysis of ECHONET Lite and Related Protocols}
+\label{sec:comparison}
+
+\subsection{Matter}
+\label{sec:matter}
+
+Matter is an application-layer standard developed under the Connectivity Standards Alliance to provide cross-platform interoperability for smart-home devices. A Matter network is called a fabric, which can operate without an Internet connection and uses link layers including Wi-Fi, Thread and Bluetooth Low Energy \cite{Zohdi2026}. Pham et al.\ compared the architecture and features of Matter and ECHONET Lite directly and analysed their commonalities and differences, and developed a bridge that exposes ECHONET Lite devices within a Matter fabric \cite{Pham2024}. Matter is thus the closest contemporary counterpart to ECHONET Lite and is the most significant comparison point for the present study.
+
+Security is a defined part of Matter, rather than an add-on. A device is commissioned through Password Authenticated Session Establishment (PASE), which is based on the SPAKE2+ protocol, and subsequent operational sessions are established through Certificate Authenticated Session Establishment (CASE), which is a certificate-based protocol \cite{Zohdi2026,SiliconLabsMatter}. Each device carries a Device Attestation Certificate that chains, through a Product Attestation Intermediate, to a Product Attestation Authority, and the commissioner verifies this credential and challenges the device to prove possession of the corresponding private key \cite{SiliconLabsMatter}. Once a session is established, Matter protects application-layer packets with authenticated encryption using AES-128-CCM, so that the payload is encrypted and the remaining header fields are authenticated as associated data \cite{Zohdi2026,Losty2026}. Each message header carries a four-byte message counter that is described as directional and as providing replay protection \cite{Zohdi2026}. Authorisation within a fabric is governed by access control lists that are loaded during commissioning \cite{SiliconLabsMatter}.
+
+Matter is not free of weaknesses, and the literature on these is instructive for the present study because it shows that specifying security does not by itself guarantee it. Zohdi and Antonioli identified design-level denial-of-service vulnerabilities in the specification of Matter status-report messages, which can be sent unencrypted and unauthenticated during session establishment and which affect all versions of the standard up to the version they examined \cite{Zohdi2026}. Shashwat et al.\ observed that a device must present an attestation credential to the commissioner, while the controller is not required to prove its trustworthiness to the device \cite{Shashwat2023}. Nino et al.\ showed that an attacker with temporary physical access to a device that is not physically secured can extract credentials and impersonate devices and controllers \cite{Nino2026}. An empirical study of 25 Matter devices confirmed the benefits of AES-128-CCM, attestation and secure commissioning, while also reporting metadata exposure through multicast DNS, inconsistent key rotation and irregular firmware maintenance \cite{Losty2026}. Matter therefore demonstrates that authenticated encryption, replay protection and device identity can be integrated into a smart-home application protocol, albeit with significant specification and implementation complexity.
+
+\subsection{Constrained Application Protocol (CoAP)}
+\label{sec:coap}
+
+CoAP is an IETF-standardised application-layer protocol designed for constrained nodes and networks. It is a request--response protocol with a web-like interaction model and is carried primarily over UDP \cite{RFC7252}. It does not define a device model, which is left to the profiles and applications built above it. In this respect it resembles the messaging role of ECHONET Lite without the standardised object semantics.
+
+The CoAP specification defines security by binding the protocol to DTLS rather than by embedding cryptography in the CoAP message. It describes four security modes, namely NoSec (no protocol-level security), PreSharedKey, RawPublicKey and Certificate \cite{RFC7252}. When DTLS is used, the record layer provides confidentiality, integrity and replay detection for the datagrams exchanged \cite{RFC6347,RFC9147}. End-to-end application-layer protection that survives intermediaries can alternatively be provided by Object Security for Constrained RESTful Environments (OSCORE) \cite{RFC8613}, and the performance of OSCORE and EDHOC together with transport-layer DTLS and TLS has been evaluated for CoAP and MQTT \cite{Laaroussi2021}. Experimental comparisons indicate that adding security carries a measurable cost in bandwidth and processor use on constrained devices, and that this must be weighed against the functional requirements of the application \cite{Seoane2021,Laaroussi2021}.
+
+The relevance of CoAP to this study is twofold. First, it demonstrates a protocol of comparable simplicity, in which security is a well-defined option for the implementer to select. Second, it exposes the central trade-off. Securing a UDP-based constrained protocol through a session-oriented transport such as DTLS provides strong protection, but requires a handshake, session state and key provisioning at each endpoint, which is the cost that motivates a lighter-weight alternative for ECHONET Lite.
+
+\subsection{Message Queuing Telemetry Transport (MQTT)}
+\label{sec:mqtt}
+
+MQTT is an OASIS standard for publish--subscribe messaging in which clients exchange application messages through a broker, normally over TCP \cite{MQTT5}. It is widely used for cloud telemetry and has been compared with CoAP, AMQP and HTTP in several surveys \cite{Naik2017,Petrescu2025}. Its operational level is that of a messaging transport with no device model, since payloads are opaque to the protocol.
+
+The security guidance in the MQTT specification is non-normative. The specification describes the use of TLS for encryption and for authenticating the client to the server through certificates, the use of the user name and password carried in the CONNECT packet, authorisation checks by the server, and the optional inclusion of hash values in application messages by applications that require integrity of message contents \cite{MQTT5}. The specification also cautions that passing authentication data in clear text can give rise to man-in-the-middle and replay attacks \cite{MQTT5}. Version~5 additionally defines an enhanced authentication exchange. Protection is generally hop-by-hop between a client and the broker, so the broker is a trusted intermediary. Koutras et al.\ report that MQTT supports a mature security model with access-control-list authorisation, and that careful configuration is necessary to avoid common IoT attack vectors \cite{Koutras2026}.
+
+MQTT demonstrates a different model of delegation from ECHONET Lite. Security is left to the transport and the broker, but a defined and widely deployed convention, TLS, exists for doing so. Authorisation can be enforced centrally at the broker, which is not available in the peer-to-peer or multicast communication model of ECHONET Lite.
+
+\subsection{Zigbee}
+\label{sec:zigbee}
+
+Zigbee is a low-power wireless networking standard that specifies network and application-support layers above IEEE~802.15.4, and so it is a complete stack and not only a messaging protocol. Its security model is built into the stack. It uses AES-128 for encryption, a network key chosen by the coordinator that is shared by devices in the network, and link keys that provide an additional layer of protection for application-layer traffic between nodes \cite{SiliconLabsZigbee}. Replay protection is provided by frame counters, with receivers recording the counter of each sender and ignoring messages that do not carry a higher value \cite{SiliconLabsZigbee,Marksteiner2017}.
+
+The history of Zigbee demonstrates that key provisioning is the critical point of failure. Earlier profiles allowed devices to join using a well-known, published default link key, and a 2015 exploit demonstrated a deterministic path to recover the network key when devices fell back to the default key. Zigbee~3.0 retains the default key only as a fallback and favours unique link keys derived from install codes \cite{SiliconLabsZigbee}. Marksteiner et al.\ likewise report that transport of the network key may occur unencrypted, that a publicly known default trust-centre link key can compromise the initial key exchange, and that low-cost devices may lack secure key storage \cite{Marksteiner2017}. Zigbee thus illustrates a protocol in which authentication and replay protection are present but depend on a trustworthy key-establishment process.
+
+\subsection{Summary of the Comparison}
+\label{sec:comparison-summary}
+
+Tables~\ref{tab:compare-function} and~\ref{tab:compare-security} summarise the comparison. Table~\ref{tab:compare-function} sets out the operational level of each protocol, which determines the fairness of the comparison. Table~\ref{tab:compare-security} compares the security properties at each protocol's own level. The entries for ECHONET Lite derive from Sections~\ref{sec:echonet-background} and~\ref{sec:echonet-security-provision}, and the entries for the other protocols derive from Sections~\ref{sec:matter} to~\ref{sec:zigbee}.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Operational level, transport and communication model of the compared protocols}
+  \label{tab:compare-function}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+    \toprule
+     & \textbf{ECHONET Lite}                                                                                                            & \textbf{Matter} & \textbf{CoAP} & \textbf{MQTT} & \textbf{Zigbee} \\
+    \midrule
+    \textbf{Operational level}
+     & Application-level messaging middleware with a standardised device-object model, independent of layers 1--4 \cite{ECHONETPart2}
+     & Application-layer framework with data model, commissioning and secure sessions \cite{Zohdi2026,Pham2024}
+     & Application-layer request--response protocol for constrained nodes, with no device model \cite{RFC7252}
+     & Application-layer publish--subscribe messaging, with opaque payloads \cite{MQTT5}
+     & Complete low-power wireless stack above IEEE 802.15.4, including network and application-support layers \cite{SiliconLabsZigbee}                                                                     \\
+    \addlinespace
+    \textbf{Transport}
+     & UDP (destination port 3610); TCP permitted \cite{ECHONETPart2}
+     & Runs over Wi-Fi, Thread and Bluetooth Low Energy; carried by UDP, TCP or BTP \cite{Zohdi2026}
+     & Primarily UDP \cite{RFC7252}
+     & Normally TCP, through a broker \cite{MQTT5}
+     & IEEE 802.15.4 link \cite{SiliconLabsZigbee}                                                                                                                                                          \\
+    \addlinespace
+    \textbf{Communication pattern}
+     & Request, response and notification between objects; unicast, multicast and broadcast \cite{ECHONETPart2}
+     & Fabric-based; commissioning followed by operational sessions \cite{Zohdi2026}
+     & Request--response \cite{RFC7252}
+     & Publish--subscribe via broker \cite{MQTT5}
+     & Network of coordinator, routers and end devices with shared network key \cite{SiliconLabsZigbee}                                                                                                     \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Security properties of the compared protocols at their own level of operation}
+  \label{tab:compare-security}
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+    \toprule
+     & \textbf{ECHONET Lite}                                                                                                      & \textbf{Matter} & \textbf{CoAP} & \textbf{MQTT} & \textbf{Zigbee} \\
+    \midrule
+    \textbf{Authentication}
+     & None in the message; node authentication delegated to RFC 5191 at lower layers \cite{ECHONETPart2}
+     & PASE (SPAKE2+) for commissioning; CASE (certificates) for operation; device attestation \cite{Zohdi2026,SiliconLabsMatter}
+     & Through DTLS: PreSharedKey, RawPublicKey or Certificate modes; NoSec also defined \cite{RFC7252}
+     & User name and password, TLS client certificates, and enhanced authentication in v5 \cite{MQTT5}
+     & Joining through the trust centre; link keys, including install-code-derived keys \cite{SiliconLabsZigbee}                                                                                      \\
+    \addlinespace
+    \textbf{Confidentiality and integrity}
+     & None in the frame; delegated to DTLS, IPsec or link-layer mechanisms as required \cite{ECHONETPart2,ECHONETGuidelines}
+     & AES-128-CCM authenticated encryption of each message \cite{Zohdi2026,Losty2026}
+     & DTLS record protection; optional end-to-end OSCORE \cite{RFC6347,RFC8613}
+     & TLS between client and broker; optional application-level hash \cite{MQTT5}
+     & AES-128 with network and link keys, with message integrity code \cite{SiliconLabsZigbee,Marksteiner2017}                                                                                       \\
+    \addlinespace
+    \textbf{Freshness and replay resistance}
+     & None specified; TID is for request--response matching only \cite{ECHONETPart2}
+     & Four-byte directional message counter \cite{Zohdi2026}
+     & DTLS replay detection; OSCORE sequence numbers \cite{RFC6347,RFC8613}
+     & Relies on TLS; clear-text credentials may permit replay \cite{MQTT5}
+     & Frame counters \cite{SiliconLabsZigbee,Marksteiner2017}                                                                                                                                        \\
+    \addlinespace
+    \textbf{Key and trust provisioning}
+     & Not defined by ECHONET Lite; each deployment or manufacturer selects its own mechanism \cite{ECHONETGuidelines}
+     & Commissioning with passcode, attestation and operational certificates \cite{SiliconLabsMatter}
+     & Pre-shared keys or certificates, with handshake overhead on constrained nodes \cite{Seoane2021,Laaroussi2021}
+     & Security guidance is non-normative; broker is a trusted intermediary \cite{MQTT5,Koutras2026}
+     & Network key shared across network; default-key fallback historically exploited \cite{SiliconLabsZigbee,Marksteiner2017}                                                                        \\
+    \addlinespace
+    \textbf{Security mandatory in the core specification}
+     & No \cite{ECHONETPart2}
+     & Yes (secure channel is part of the standard) \cite{Zohdi2026}
+     & Optional; mode selected by the implementer \cite{RFC7252}
+     & Optional; non-normative guidance \cite{MQTT5}
+     & Defined within the stack \cite{SiliconLabsZigbee}                                                                                                                                              \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Three conclusions follow from the comparison. First, ECHONET Lite is the only one of the five protocols whose core specification expressly states that security is not specified at the level at which the messages are defined and assigns it entirely to lower layers. CoAP and MQTT also leave security optional, but each defines a concrete and widely adopted way to apply it, namely DTLS or OSCORE for CoAP and TLS for MQTT, and each provides a mechanism that permits receivers to detect replayed or altered datagrams. Second, Matter and Zigbee place authentication, integrity and replay protection inside their own message or frame processing, and both show the importance of a sound key-establishment process. Third, the protocols that match ECHONET Lite most closely in function, namely Matter at the application level and CoAP at the messaging level, resolve the security question with session-oriented handshakes. This is a heavier solution than the lightweight, frame-level approach to which ECHONET Lite's constrained appliance population points, and it supports the framing of the research problem in Chapter~1.
+
+The comparison is limited in two respects. It compares specifications, so it does not indicate how well any protocol is protected in practice, and the Matter literature in particular shows that implementation and specification flaws can undermine a sound design \cite{Zohdi2026,Seong2026}. It also compares protocols of unequal scope, which is why the operational level is reported first.
+
+%--------------------------------------------------------------------
+\section{Security Limitations of ECHONET Lite}
+\label{sec:flaws}
+
+This section is the analytical core of the chapter. It consolidates the limitations of ECHONET Lite at the message level, in the manner in which the deficiencies of an unprotected industrial messaging protocol are analysed against the requirements of authentication, integrity, confidentiality and freshness. Each limitation is classified by evidence. A limitation marked \emph{stated} is documented in the specification or the Guidelines. A limitation marked \emph{inferred} is a consequence that the author derives from the specification text. No limitation in this section is based on an experiment performed by the author, and the inferred limitations should be understood as properties of the protocol design that are to be tested in the evaluation described in later chapters.
+
+\subsection{L1: Security Is Outside the Scope of the Communication Specification (Stated)}
+
+The specification states that security is not specified in the ECHONET Lite Communication Processing Block, and it assigns responsibility to layer~4 or lower ``as required'' \cite{ECHONETPart2}. This establishes the baseline for all subsequent limitations. A device that implements the specification fully, and that transmits and accepts every message without protection, remains conformant. Consequently the specification provides neither a guarantee of protection nor a means for a receiving device to discover whether protection is in force.
+
+\subsection{L2: No Application-Layer Origin Authentication (Inferred)}
+
+The SEOJ and DEOJ fields identify the source and destination objects through a three-byte object code \cite{ECHONETPart2}. These fields identify what an object is, and where in the node it resides, but they contain no cryptographic binding to the sender. The analysis in Chapter~1 reached the same conclusion on the addressing scheme. A node that can place a datagram on the network segment can construct a syntactically valid frame that names any source object. A receiving device therefore cannot determine from the frame whether the sender is the authorised controller. This is the weakness that the literature on smart-home authentication seeks to address with identification and authentication mechanisms \cite{AlJanah2021}. Authentication at the network-access level, such as PANA on the smart-meter link \cite{ECHONETGuidelines}, determines which nodes may attach, but once attached, any node may send.
+
+\subsection{L3: No Message Integrity Protection (Inferred)}
+
+The frame structure in Table~\ref{tab:echonet-frame} has no field in which a message authentication code or equivalent could be carried \cite{ECHONETPart2}. The property data (EDT) and the service code (ESV) can therefore be modified in transit by an adversary positioned on the path, with no means for the receiver to detect the modification at the application layer. Transport checksums detect accidental corruption but do not provide protection against deliberate modification. Whether integrity is protected in a particular deployment depends wholly on the lower-layer measures discussed in L7. This is of particular significance where the modified field is an ESV code, which determines whether a frame is a read or a write, or where it is the EDT that sets a physical operating parameter. The category of unauthorised control and manipulation of cyber-physical systems is recognised as a principal consequence of smart-home attacks in the threat taxonomy of Heartfield et al.\ \cite{Heartfield2018}.
+
+\subsection{L4: No Confidentiality (Inferred)}
+
+The frame carries property values in clear form. A passive observer on the network path can read device classes, operating states and measured values without needing to defeat any protection. As noted in Chapter~1, consumption and operating-status information can reveal household activity. The consequences of passive disclosure are therefore not limited to the integrity of control. This corresponds to the confidentiality concern identified for smart-home networks generally \cite{Heartfield2018}, and it parallels the plaintext exposure of an unprotected industrial protocol.
+
+\subsection{L5: No Freshness or Replay Protection (Inferred)}
+
+The specification describes the TID as a two-byte identifier that matches a response with its request, and it does not specify its value for notifications \cite{ECHONETPart2}. The TID is therefore not designed as a nonce, a counter or a timestamp. A sixteen-bit field has only 65{,}536 distinct values, and the specification does not require that it be unpredictable or monotonic. A receiving device has no specified means of recognising that a valid, previously observed write request, for example a SetC frame (\texttt{0x61}), is being retransmitted. Comparison with the other protocols in Table~\ref{tab:compare-security} shows that the absence of any freshness mechanism is unique among them. Matter has a message counter, Zigbee a frame counter, and DTLS provides replay detection \cite{Zohdi2026,SiliconLabsZigbee,RFC6347}. Replay resistance is accordingly a necessary requirement for any communication in which a command can alter device behaviour.
+
+\subsection{L6: Predictable Discovery and Broadcast of Write Services (Stated and Inferred)}
+
+The specification fixes the destination port at 3610, defines the multicast group addresses, and requires nodes to listen on them \cite{ECHONETPart2}. These parameters are stated and ease discovery, but they also remove the effort of locating the service. Table~\ref{tab:esv} shows that the write services SetI and SetGet, as well as Get and INF\_REQ, are permitted to be broadcast \cite{ECHONETPart2}. It is the author's inference that, in the absence of L2 and L5, a single unauthenticated multicast frame can address every reachable node on a segment. The impact of an injected command is therefore not limited to one appliance, which reinforces the concern in Chapter~1 that a HEMS environment aggregates many controllable devices.
+
+\subsection{L7: Lower-Layer Protection Is Optional, Heterogeneous and Does Not Reach the Message (Stated and Inferred)}
+
+The specification defers protection to RFC~5191, DTLS and IPsec, and the Guidelines additionally list link-layer mechanisms and company-specific mechanisms \cite{ECHONETPart2,ECHONETGuidelines}. Five difficulties arise from this arrangement.
+
+\begin{enumerate}
+  \item \emph{Optionality (stated).} Protection is applied ``as required'' and so is not guaranteed in any given device or deployment.
+  \item \emph{Fragmentation (stated).} Because the mechanism may be proprietary, controllers and appliances from different manufacturers cannot assume a common security capability, which weakens the multi-vendor interoperability that is the purpose of the standard.
+  \item \emph{Boundary of protection (inferred).} Network-access and link-layer protections such as IEEE~802.1X, WPA2 or PANA limit who may join a network. They do not authenticate individual application messages between objects. A compromised device that has legitimately joined, which is the threat described in Chapter~1, can still issue messages that other devices accept.
+  \item \emph{Applicability to multicast (inferred).} DTLS establishes a security association between two endpoints, which is not directly suited to the multicast and broadcast services listed in Table~\ref{tab:esv}.
+  \item \emph{Currency of the reference (stated).} The Guidelines specify DTLS by reference to RFC~4347 \cite{ECHONETGuidelines}, a version that has since been superseded by RFC~6347 and, subsequently, by DTLS~1.3 in RFC~9147 \cite{RFC6347,RFC9147}.
+\end{enumerate}
+
+Measurements of CoAP and MQTT with security enabled indicate that session-oriented security carries a cost in latency, bandwidth and processor load on constrained devices \cite{Seoane2021,Laaroussi2021}. It is the motivation of this study that such a cost may be disproportionate for resource-limited appliances. The generalisation to the ECHONET Lite appliance population is a hypothesis that is evaluated in this thesis and is not an established finding.
+
+\subsection{L8: No Application-Layer Authorisation Model (Inferred)}
+
+The specification defines access rules for properties, such as whether a property may be set, read or announced \cite{ECHONETPart2}. In the author's reading, these rules describe which services a property supports and do not describe which principal is permitted to invoke them. The remote-control setting property (\texttt{0x93}) tells a device whether it is being controlled through a public network, but it does not authenticate the controller \cite{ECHONETGuidelines}. As a result, the distinction between network reachability and authorisation to control, which Chapter~1 identifies as a requirement of a secure architecture, is not represented in the protocol itself.
+
+\subsection{L9: Documented Availability Weaknesses on the Smart-Meter Path (Stated)}
+
+The Guidelines record two availability risks on the wireless smart-meter path. Certain meters stop communicating for ten minutes after receiving sixty or more messages per minute, and malicious Enhanced Beacon Requests can disturb communication between a HEMS controller and the meter, which leads the Guidelines to recommend that a meter retain its existing connection until a new controller completes PANA authentication \cite{ECHONETGuidelines}. These observations come from the specification authors themselves. A rate-triggered lock-out is an inferred but significant concern, since an adversary who can send unauthenticated frames at a modest rate could use the protective behaviour to suppress legitimate control. Availability is the third element of the security triad in Chapter~1, and this limitation shows that the weakness is a recognised operational concern.
+
+\subsection{L10: Emerging Identity Initiatives Do Not Yet Address Messages (Stated)}
+
+The 2026 announcement that the Consortium intends to strengthen its security framework with PKI-based device identity \cite{SEALSQ2026} indicates that a device-identity infrastructure is being developed. As stated in Section~\ref{sec:echonet-security-provision}, the announcement does not describe how message-level authentication, integrity or freshness would be achieved. Until such provisions are published in the specification, the limitations L2 to L5 stand.
+
+\subsection{Consolidated View}
+
+Table~\ref{tab:flaws} consolidates the limitations, the evidence on which each rests, and the attack enabled. It uses the attack classes of the threat model in Chapter~1, namely eavesdropping, message modification, command injection, replay and denial of service.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Consolidated security limitations of ECHONET Lite at the message level}
+  \label{tab:flaws}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.9cm} l@{}}
+    \toprule
+    \textbf{ID} & \textbf{Limitation}                            & \textbf{Basis in the specification}                                                       & \textbf{Attack enabled}                  & \textbf{Evidence}   \\
+    \midrule
+    L1          & Security out of scope                          & ``Security is not specified'' in the Communication Processing Block \cite{ECHONETPart2}   & All below                                & Stated              \\
+    L2          & No origin authentication                       & SEOJ/DEOJ are object codes with no cryptographic binding                                  & Spoofing, command injection              & Inferred            \\
+    L3          & No integrity protection                        & No MAC field in the frame                                                                 & Message modification                     & Inferred            \\
+    L4          & No confidentiality                             & Plaintext property data (EDT)                                                             & Eavesdropping, profiling                 & Inferred            \\
+    L5          & No freshness                                   & TID only matches responses to requests                                                    & Replay                                   & Inferred            \\
+    L6          & Predictable discovery; broadcast writes        & Fixed port, multicast groups; SetI and SetGet may be broadcast                            & Wide-scope injection                     & Stated and inferred \\
+    L7          & Optional, heterogeneous lower-layer protection & Delegated ``as required''; company-specific mechanisms permitted \cite{ECHONETGuidelines} & Insider and rogue-node attacks           & Stated and inferred \\
+    L8          & No authorisation model                         & Access rules describe services, not principals                                            & Unauthorised control by an attached node & Inferred            \\
+    L9          & Availability weaknesses                        & Documented lock-out and beacon-request weaknesses \cite{ECHONETGuidelines}                & Denial of service                        & Stated              \\
+    L10         & Identity initiative not message-level          & PKI announcement \cite{SEALSQ2026}                                                        & Unchanged: L2--L5                        & Stated              \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The pattern is one of absence at the message level rather than of weakness in a specified mechanism, and in this respect it resembles the plaintext, unauthenticated condition of other industrial and smart-home messaging protocols. The practical implication is that the protocol offers no inherent defence once an adversary can place frames on the path, which is the adversary model adopted in Chapter~1.
+
+%--------------------------------------------------------------------
+\section{Existing Research on Securing ECHONET Lite}
+\label{sec:related-echonet}
+
+Published work specific to the security of ECHONET Lite is limited, and it addresses the problem at different layers from the message-level one considered here.
+
+Tanaka et al.\ observed in 2012 that a detailed security architecture for HEMS based on ECHONET Lite was missing. They proposed an architecture for communication between smart meters and home area network devices that merges device registration and enrolment into a single network-access authentication procedure using a tunnelling EAP method \cite{Tanaka2012}. It operates at the level of network access and enrolment.
+
+A series of studies by Tanaka et al.\ addresses remote control of ECHONET Lite appliances. Because many remote-control services rely on a support server on the Internet, they proposed an end-to-end remote-control system based on Network Traversal with Mobility (NTMobile), which resolves NAT traversal and provides end-to-end encrypted communication between an outside controller and an in-home device without a support server \cite{TanakaGCCE2017,TanakaICCE2018}. The system was later implemented on Android and evaluated against the timeout stated in the ECHONET Lite specification \cite{TanakaICCE2019}. This work protects the path between the outside controller and the home. It does not change the messages exchanged between devices inside the home network.
+
+Pham et al.\ compared Matter and ECHONET Lite and built a bridge that exposes ECHONET Lite devices within a Matter fabric \cite{Pham2024}. Takaki et al.\ extended an interoperability hub with Matter functionality and a Web of Things description layer \cite{Takaki2026}. In these architectures the bridge is the point at which the two protocols meet. It follows, as the author's inference, that Matter's own secure channel terminates at the bridge and does not extend to the ECHONET Lite side.
+
+Takaki et al.\ also studied remote-control methods for heterogeneous smart-home devices \cite{Takaki2024}. More generally, the literature on smart-home authentication surveys identification and authentication techniques at the user and device levels \cite{AlJanah2021}, and the literature on lightweight authentication protocols for smart homes proposes schemes based on hashing and elliptic-curve operations that are evaluated on computation and communication cost \cite{Nyangaresi2022,Oh2021}. These schemes are protocol-agnostic and generally rely on dedicated exchanges between a user and a device. They do not describe an integration with the ECHONET Lite frame.
+
+On the basis of the searches carried out for this review, the author has not identified a published scheme that adds origin authentication, integrity verification and replay protection within the ECHONET Lite message exchange itself while preserving the standard object-and-property model. This statement is qualified by the scope of the search, which covered the literature databases and standards documents cited in this chapter.
+
+%--------------------------------------------------------------------
+\section{Research Gap and Derived Design Requirements}
+\label{sec:gap}
+
+The analysis in Sections~\ref{sec:comparison} to~\ref{sec:related-echonet} identifies the following gap. Contemporary protocols that provide message-level protection, Matter and CoAP with DTLS or OSCORE, rely on session handshakes and per-device credential provisioning. ECHONET Lite, which has a large installed base in energy management, specifies no message-level protection and delegates it to lower layers that are optional and heterogeneous. Existing ECHONET Lite security research protects remote access and network enrolment, and it does not protect the individual messages exchanged between a controller and an appliance.
+
+The review of the limitations in Section~\ref{sec:flaws} yields the following requirements for a security extension that aims to address L2 to L5. These requirements are consistent with the objectives in Chapter~1 and are not claims about the performance of a solution.
+
+\begin{enumerate}
+  \item \textbf{Message authentication and integrity} (addresses L2, L3). The receiver must be able to verify that a frame originated from a party holding the shared secret and that it has not been altered.
+  \item \textbf{Freshness} (addresses L5). The receiver must be able to reject a previously accepted message.
+  \item \textbf{Compatibility with the object model} (supports the scope of Chapter~1). The extension must not change the object and property semantics, so that the SEOJ, DEOJ, ESV and property fields retain their meaning and ECHONET Lite remains interoperable.
+  \item \textbf{Low overhead} (addresses the L7 trade-off). Added bytes per frame and added processing time must be measured and kept small, given the constrained appliance population.
+  \item \textbf{Fail-closed behaviour} (addresses L6). A frame that fails verification must be discarded, so that a forged or replayed frame has no effect on the target object.
+\end{enumerate}
+
+Confidentiality (L4) is recognised as a limitation of ECHONET Lite. It lies outside the stated objectives of this study, which concentrate on authentication, integrity and freshness, and it is recorded here so that the scope boundary is explicit. Key distribution and authorisation (L7, L8) are likewise outside the primary scope, consistent with the scope and limitations stated in Chapter~1.
+
+%--------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:ch2-summary}
+
+This chapter reviewed ECHONET Lite and compared it with Matter, CoAP, MQTT and Zigbee at the operational level and in terms of authentication, confidentiality, integrity, replay resistance and key provisioning. The comparison showed that ECHONET Lite is distinguished among these protocols by a specification that states that security is not specified at the message level and defers it to lower layers that are optional, heterogeneous and do not authenticate individual messages. The consolidated analysis in Section~\ref{sec:flaws} established ten limitations, of which the absence of origin authentication, integrity protection and freshness (L2, L3 and L5) is central to the research problem. Existing research on ECHONET Lite security addresses remote access and network enrolment, and the comparison protocols that provide message-level protection depend on session handshakes whose cost for constrained appliances is the subject of Chapter~1's motivation. The design requirements derived in Section~\ref{sec:gap} form the basis of the mechanism that is presented in Chapter~3.
 
 
-\begin{itemize}[nosep]
-  \item \verb|\citet{latex:companion}| $\to$ Mittelbach et al. [1]
-  \item \verb|\citet[chap.~2]{latex:companion}| $\to$ Mittelbach et al. [1, chap.~2]
-  \item \verb|\citep{latex:companion}| $\to$ [1]
-  \item \verb|\citep[chap.~2]{latex:companion}| $\to$ [1, chap.~2]
-  \item \verb|\citep[see also][]{latex:companion}| $\to$ [see also 1]
-  \item \verb|\citep[see also][chap.~2]{latex:companion}| $\to$ [see also 1, chap.~2]
-  \item \verb|\citet{latex:companion,roberts}| $\to$ Mittelbach et al. [1], Roberts [3]
-  \item \verb|\citep{latex:companion,roberts}| $\to$ [1, 3]
-  \item \verb|\citeauthor{latex:companion}| $\to$ Mittelbach et al.
-  \item \verb|\citeyear{latex:companion}| $\to$ 2004
-  \item \verb|\citeyearpar{latex:companion}| $\to$ [2004]
-\end{itemize}
+% \chapter{Citations and Bibliography}\label{chap:review}
+
+% Echonet lite does not have native security measures due to this it relies on the security of the underlying network. Security measures such as encryption and authentication are not built into the protocol itself, whereas are delegated to lower layers of the network stack, starting from layer 4 to layer 2 entirely depending upon RFC 5191, DTLS, or IPsec. \cite{echonet_lite_part2}
+
+% This chapter should have been a survey on the history of \TeX{} and \LaTeX{}, and a comparison to conventional word processors in preparing academic documents.  Due to lack of time on the author's part, and also the abundance of such discussions on the web, we look at ways to prepare the bibliography and citations instead.
+
+
+% % ============================================================
+% % SECTION: Cybersecurity Consequences and Economic Impact
+% % ============================================================
+
+% \section{Cybersecurity Consequences and Economic Impact of Insecure Connected Systems}
+% \label{sec:cybersecurity_economic_impact}
+
+% The increasing deployment of connected devices has expanded the potential consequences of cybersecurity weaknesses beyond conventional information-security concerns. In residential and Internet of Things (IoT) environments, inadequate authentication, insecure interfaces, and poorly protected communication channels can enable unauthorized access, device compromise, privacy violations, service disruption, and, in some cases, physical safety consequences. The literature therefore indicates that the security of connected devices must be considered not only from the perspective of confidentiality and data protection, but also in terms of operational reliability, financial loss, and the potential consequences of unauthorized control.
+
+% % REFERENCE: Almani & Furnell, "Assessing the Security Vulnerabilities and Countermeasures of Connected and Smart Devices" (2025)
+% Almani and Furnell identify weak authentication, insecure interfaces, and inadequate security mechanisms as important vulnerabilities affecting connected and smart devices. Their discussion further highlights that vulnerabilities in IoT environments may extend beyond conventional data-security concerns to include safety-related consequences when compromised devices interact with physical processes \cite{almaniAssessingSecurityVulnerabilities2025}. This observation is particularly relevant to residential cyber-physical environments, where connected devices can influence physical equipment and household operations.
+
+% % REFERENCE: Buil-Gil et al., "The digital harms of smart home devices" (2022)
+% The security risks associated with smart-home environments are further demonstrated by Buil-Gil et al., who identify a range of digital harms associated with connected domestic devices, including unauthorized access, privacy intrusion, hacking, malware, and denial-of-service attacks \cite{buil-gilDigitalHarmsSmart2022}. Their work also documents real-world cases of smart-home device abuse, demonstrating that vulnerabilities in domestic connected devices are not merely theoretical security concerns.
+
+% The consequences of device compromise can extend beyond the individual device or household. Insecure IoT devices may be incorporated into botnets and subsequently used to conduct attacks against external systems. This creates a situation in which the owner of a compromised device may simultaneously become a victim and an unwitting participant in a broader cyberattack.
+
+% % REFERENCE: Fong et al., "Quantifying Consumer Costs of Insecure Internet of Things Devices"
+% % Fong et al. examine the consumer-side costs associated with insecure IoT devices and demonstrate that compromised devices can impose additional resource consumption and degrade the experience of legitimate users. Such consequences include increased bandwidth consumption and impaired device or network performance. These findings are important because the consequences of insecure IoT deployments are not necessarily limited to the organization or infrastructure directly targeted by an attacker. The source is not currently present in mybib.bib.
+
+% % REFERENCE: Kagita et al., "A Review on Cyber Crimes on the Internet of Things" (2020)
+% Kagita et al. similarly discuss the role of insecure IoT devices in cybercrime, including their exploitation as components of botnets and their use as proxies for distributed denial-of-service (DDoS) attacks \cite{kagitaReviewCyberCrimes2020}. Their review also provides broader evidence of the scale and frequency of cybercrime affecting IoT environments. This establishes that weakly secured connected devices can provide attackers with an accessible entry point into larger attack infrastructures.
+
+% The relationship between authentication and financial loss is particularly important when considering the security of communication systems. Although many reported cyber-loss figures encompass broader categories of cybercrime rather than residential M2M communication specifically, the literature provides evidence that inadequate authentication can contribute directly to unauthorized access and fraudulent activity.
+
+% % REFERENCE: Calderon & Onita, "Big Data and the Perceived Expectations Gap in Digital Authentication Processes" (2017)
+% Calderon and Onita provide evidence connecting failures in digital authentication with financial fraud, illustrating the economic consequences that may arise when entities cannot be reliably identified and authenticated \cite{calderonBigDataPerceived2017}. This relationship is particularly relevant to communication protocols in which a device or controller must determine whether an incoming message originates from an authorized entity.
+
+% The financial consequences of cyber incidents also vary considerably in magnitude. While some incidents result in relatively limited losses, a small proportion of events can produce exceptionally large financial consequences. This distribution is important when assessing the potential impact of security weaknesses because average incident costs alone may fail to represent the risk associated with severe but less frequent events.
+
+% % REFERENCE: Romanosky, "Examining the costs and causes of cyber incidents" (2016)
+% Romanosky reports that many cyber incidents have costs below the levels associated with highly publicized mega-breaches, with typical incident costs reported at less than USD~200,000 and approximately 0.4\% of annual revenue \cite{romanoskyExaminingCostsCauses2016}. However, these values should not be interpreted as a complete measure of cyber-related harm because incident-cost estimates may exclude indirect consequences.
+
+% % REFERENCE: Shevchenko et al., "The nature of losses from cyber-related events" (2022)
+% The heavy-tailed nature of cyber losses is further emphasized by Shevchenko et al., who report that although a large proportion of cyber events result in comparatively moderate losses, a small number of events can exceed USD~1 billion \cite{shevchenkoNatureLossesCyberrelated2023}. This characteristic indicates that cybersecurity risk should not be evaluated solely according to the expected cost of a typical incident; low-frequency, high-impact events must also be considered.
+
+% Examples from critical and safety-sensitive environments further illustrate the potential consequences of compromise.
+
+% % REFERENCE: Williams et al., "Cybersecurity Risks in a Pandemic" (2020)
+% Williams et al. discuss cybersecurity incidents in healthcare environments and provide examples of direct financial losses and operational disruption, including ransomware-related incidents involving healthcare organizations \cite{williamsCybersecurityRisksPandemic2020}. Their discussion also identifies network segmentation, including the use of virtual local area networks (VLANs), as a mitigation strategy. Such measures illustrate the importance of protecting systems at the network level; however, network-level containment does not necessarily provide authentication or message integrity within an application-layer protocol.
+
+% % REFERENCE: Riggs et al., "Impact, Vulnerabilities, and Mitigation Strategies for Cyber-Secure Critical Infrastructure" (2023)
+% Riggs et al. extend this concern to critical infrastructure, where cyber incidents can produce substantial service disruption and financial consequences \cite{riggsImpactVulnerabilitiesMitigation2023}. Their work emphasizes the continuing importance of cybersecurity for interconnected operational environments. Although critical infrastructure and residential HEMS deployments differ substantially in scale and architecture, both involve network-connected systems whose compromise may influence physical operations.
+
+% % REFERENCE: Taddeo, "Three Ethical Challenges of Applications of Artificial Intelligence in Cybersecurity" (2019)
+% The potential magnitude of cyber-related losses is further illustrated by large-scale malware incidents. Taddeo discusses the NotPetya attack and the substantial financial consequences experienced by major organizations, including Merck, Maersk, and FedEx, with reported losses of approximately USD~300 million for each organization \cite{taddeoThreeEthicalChallenges2019}. Such incidents demonstrate how compromise within interconnected environments can propagate beyond an individual system and produce substantial organizational consequences.
+
+% Cybersecurity costs also extend beyond immediate technical recovery or direct financial loss. Reputational damage, business interruption, loss of consumer trust, and broader societal consequences may not be captured adequately by conventional incident-cost measurements.
+
+% % REFERENCE: Sviatun et al., "Combating Cybercrime: Economic and Legal Aspects" (2021)
+% Sviatun et al. emphasize that the economic consequences of cybercrime include both direct and indirect losses and that reported figures may fail to capture the complete burden associated with cyber incidents \cite{sviatunCombatingCybercrimeEconomic2021}. This distinction is important when interpreting published cybercrime statistics because measured losses may represent only a subset of the actual economic and social impact.
+
+% % REFERENCE: Abrardi et al., "The economics of cyber risk" (2025)
+% Abrardi et al. similarly discuss the broader economic consequences of cyber risk, including service disruption, DDoS-related costs, and market or reputational effects \cite{abrardiEconomicsCyberRisk2026}. Their discussion demonstrates that cyber incidents may generate costs that extend well beyond the immediate technical damage to a compromised device or system.
+
+% % REFERENCE: Lukošiūtė et al., "Global Cybercrime Damages" (2026)
+% The difficulty of estimating cybercrime losses is also reflected in the variation among published global estimates. Lukošiūtė et al. discuss different categories of cybercrime-related costs, including direct losses, incident response, defensive expenditure, and indirect consequences \cite{lukosiuteGlobalCybercrimeDamages}.
+
+% % REFERENCE: Cremer et al., "Cyber risk and cybersecurity: a systematic review of data availability" (2022)
+% Cremer et al. similarly highlight the challenges associated with obtaining consistent and comparable cyber-risk data and report substantial variation in available global cost estimates \cite{cremerCyberRiskCybersecurity2022}. Consequently, global cybercrime figures should be interpreted as broad estimates rather than precise measurements of losses attributable to a particular technology, protocol, or attack mechanism.
+
+% % REFERENCE: Sharif & Mohammed, "A literature review of financial losses statistics for cyber security and future trend" (2022)
+% Sharif and Mohammed provide a broader review of cybersecurity financial-loss statistics and report increasing numbers of security incidents together with substantial projected global losses \cite{mdharisuddinsharifLiteratureReviewFinancial2022}. These findings provide additional evidence of the increasing economic significance of cybersecurity failures.
+
+% National and sector-specific statistics provide further evidence of the continuing burden of cybercrime.
+
+% % REFERENCE: Goonatilake & Ortiz, "Rise of Computer-Related Crimes" (2026)
+% % Goonatilake and Ortiz examine recent computer-related crime trends and report substantial growth in complaint-based losses, including USD~16.6 billion in reported losses associated with the U.S. Internet Crime Complaint Center (IC3) in 2024. Such figures provide an indication of the scale of reported cybercrime, although complaint-based statistics should not be interpreted as a complete measurement of total societal losses. The source is not currently present in mybib.bib.
+
+% % REFERENCE: Eling et al., "The Economic Impact of Extreme Cyber Risk Scenarios" (2022)
+% % Eling et al. investigate extreme cyber-risk scenarios and demonstrate the importance of considering high-impact events when evaluating the economic consequences of cyber risk. Their work complements studies focused on average incident costs by emphasizing the possibility of exceptionally severe outcomes. The source is not currently present in mybib.bib.
+
+% % REFERENCE: Riek & Böhme, "The costs of consumer-facing cybercrime" (2018)
+% % From a consumer perspective, Riek and Böhme examine the costs associated with consumer-facing cybercrime and highlight challenges in measuring both losses and expenditure on protection. This distinction is relevant to smart-home environments because consumers may incur costs both from security incidents themselves and from measures adopted to protect connected devices. The source is not currently present in mybib.bib.
+
+% % REFERENCE: Taman, "Impacts of Financial Cybercrime on Institutions and Companies" (2024)
+% % Taman further discusses the financial consequences of cybercrime for institutions and companies, reinforcing the observation that cybersecurity failures can produce substantial economic effects beyond the immediate technical compromise. The source is not currently present in mybib.bib.
+
+% % REFERENCE: Makhalina & Makhalin, "Digitalization of business increases the costs of information security" (2020)
+% % Makhalina and Makhalin examine the relationship between increasing digitalization and information-security costs, highlighting the growing volume of cyber threats and associated recovery and security expenditure. The source is not currently present in mybib.bib.
+
+% \subsection{Implications for Residential M2M and HEMS Security}
+% \label{subsec:implications_residential_m2m}
+
+% The literature reviewed above demonstrates three important characteristics of cybersecurity risk in connected environments. First, weak authentication and inadequate access-control mechanisms can enable unauthorized control, privacy violations, device compromise, and fraud. Second, compromised connected devices can become components of larger attack infrastructures, such as botnets, thereby extending the consequences beyond the original device or network. Third, the financial consequences of cyber incidents can include direct losses, operational disruption, recovery expenditure, reputational damage, and indirect societal costs.
+
+% However, an important limitation emerges from the existing evidence. The majority of published financial estimates concern general cybercrime, enterprise incidents, IoT compromise, fraud, or critical infrastructure rather than security failures occurring specifically within residential Machine-to-Machine (M2M) communication protocols. Direct estimates of losses caused specifically by insecure Local Area Network (LAN) communication or unauthenticated residential control messages remain limited. The available evidence therefore provides strong justification for addressing security weaknesses in connected residential systems, but it does not establish a precise monetary cost for attacks against a particular HEMS protocol.
+
+% This distinction is important for the present research. The objective is not to attribute the global economic losses reported in the literature directly to residential HEMS or to ECHONET Lite. Instead, the literature establishes the broader consequences of insecure connected systems and provides evidence that inadequate authentication, unauthorized communication, and insufficient protection of networked devices can produce measurable operational, privacy, and financial harm. Within this context, the security of the communication mechanism itself becomes an important research concern, particularly where a protocol is responsible for exchanging control messages between a HEMS controller and physical residential devices.
+
+% For the present study, the literature therefore provides the motivation for examining security mechanisms at the communication-protocol level. Network segmentation, VLANs, VPNs, and other perimeter-based controls can reduce exposure, but they do not necessarily provide intrinsic authentication of individual protocol messages once an attacker has obtained access to the local network. Consequently, protocol-level mechanisms for authentication, integrity protection, and resistance to unauthorized message injection warrant specific investigation in residential M2M environments.
+
+% % ============================================================
+% % EVIDENCE SYNTHESIS TABLE
+% % ============================================================
+
+% \begin{table}[htbp]
+%   \centering
+%   \caption{Literature evidence on the consequences of insecure connected systems}
+%   \label{tab:cybersecurity_consequences_literature}
+%   \renewcommand{\arraystretch}{1.25}
+%   \small
+%   \begin{tabular}{p{3.0cm} p{4.1cm} p{3.8cm} p{3.2cm}}
+%     \hline
+%     \textbf{Category}                                                                                                      &
+%     \textbf{Finding}                                                                                                       &
+%     \textbf{Example Consequence or Cost}                                                                                   &
+%     \textbf{Relevance to This Study}                                                                                         \\
+%     \hline
+
+%     Smart device compromise                                                                                                &
+%     Weak authentication can enable unauthorized control, data theft, and device hijacking.                                 &
+%     Privacy breaches, account compromise, and malicious device takeover.                                                   &
+%     Demonstrates the importance of authentication for connected residential devices.                                         \\
+
+%     Smart-home harms                                                                                                       &
+%     Smart-home devices can be affected by unauthorized access, privacy intrusion, malware, and DoS attacks.                &
+%     Real-world abuse and unauthorized access to domestic devices.                                                          &
+%     Establishes the relevance of cybersecurity to residential IoT environments.                                              \\
+
+%     IoT botnet abuse                                                                                                       &
+%     Insecure IoT devices can be recruited into botnets and used against third-party systems.                               &
+%     DDoS attacks and wider service disruption.                                                                             &
+%     Shows that compromised residential devices may contribute to attacks beyond the local network.                           \\
+
+%     Consumer-side costs                                                                                                    &
+%     Compromised IoT devices can consume additional resources and degrade legitimate device use.                            &
+%     Increased bandwidth consumption and impaired device/network usability.                                                 &
+%     Demonstrates that compromise can impose costs on device owners as well as attack targets.                                \\
+
+%     Authentication-related fraud                                                                                           &
+%     Failure to properly identify and authenticate entities can contribute to fraudulent activity.                          &
+%     Reported fraud losses associated with authentication failures.                                                         &
+%     Provides direct support for authentication as a security requirement.                                                    \\
+
+%     Typical incident costs                                                                                                 &
+%     Many cyber incidents produce moderate financial losses, although indirect costs may be excluded.                       &
+%     Typical incident costs below USD~200,000 in the reported evidence.                                                     &
+%     Illustrates the measurable economic consequences of cybersecurity incidents.                                             \\
+
+%     Extreme cyber losses                                                                                                   &
+%     Cyber losses exhibit a heavy-tailed distribution in which a small number of incidents cause exceptionally high losses. &
+%     Some reported events exceed USD~1 billion.                                                                             &
+%     Demonstrates the importance of considering high-impact security failures.                                                \\
+
+%     Critical-infrastructure consequences                                                                                   &
+%     Cyber incidents affecting connected operational environments can cause substantial disruption.                         &
+%     Potential million-dollar losses and service disruption.                                                                &
+%     Connects communication security with cyber-physical operational reliability.                                             \\
+
+%     Large-scale malware events                                                                                             &
+%     Highly connected environments can permit compromise to propagate across organizations.                                 &
+%     NotPetya-related losses of approximately USD~300 million for major affected organizations.                             &
+%     Illustrates the potential systemic consequences of interconnected systems.                                               \\
+
+%     DDoS-related costs                                                                                                     &
+%     Service disruption can generate substantial direct financial costs.                                                    &
+%     DDoS-related losses can reach tens of thousands of dollars per hour.                                                   &
+%     Demonstrates the wider consequences of compromised IoT devices and botnets.                                              \\
+
+%     Indirect and hidden costs                                                                                              &
+%     Reported incident figures may omit lost revenue, reputation, trust, consumer harm, and social costs.                   &
+%     Total economic burden may exceed directly reported losses.                                                             &
+%     Highlights limitations in interpreting published cybercrime cost estimates.                                              \\
+
+%     Global cybercrime estimates                                                                                            &
+%     Published estimates vary substantially because different studies use different definitions and measurement approaches. &
+%     Global estimates range from hundreds of billions to trillions of dollars.                                              &
+%     Provides context but should not be interpreted as LAN- or protocol-specific losses.                                      \\
+
+%     Network-level mitigation                                                                                               &
+%     Network segmentation and secure local networking can reduce exposure to connected-system threats.                      &
+%     VLANs and penetration testing are identified as mitigation measures.                                                   &
+%     Shows the role of network controls while motivating complementary protocol-level security.                               \\
+
+%     \hline
+%   \end{tabular}
+% \end{table}
+
+
+% \section{The \texttt{*.bib} File}
+% First of all, bear in mind that your bibliography file (\verb|*.bib| files) is like a database.  That means you can maintain a centralised list, and reuse it for all your publications.  \LaTeX{} will only list sources that you actually cite in the text for each document, according to the bibliography and citation style you select in each document.  But you can still hack it so that your own publications are listed, even if you did not cite it.
+
+
+% \begin{figure}[htb!]
+%   \begin{lstlisting}[language={}]
+% @BOOK{latex:companion,
+%   title = {The {\LaTeX} Companion},
+%   publisher = {Addison-Wesley},
+%   year = {2004},
+%   author = {Frank Mittelbach and Michel Goosens and Johannes Braams and David Carlisle and Chris Rowley},
+%   series = {Addison-Wesley Series on Tools and Techniques for Computer Typesetting},
+%   address = {Boston, MA, USA},
+%   edition = {2nd}
+% }
+% \end{lstlisting}
+%   \caption{A BibTeX Entry}\label{fig:bibtex}
+% \end{figure}
+
+% As an example, in \verb|mybib.bib| I created a Bib\TeX{} entry with JabRef, the source text of which is shown in Figure~\ref{fig:bibtex}.
+
+% One thing to note about authors' names: Bib\TeX{} recognises ``Mittelbach'' as the last name for both \texttt{Frank Mittelbach} and \texttt{Mittelbach, Frank}.  So for a name like ``Lim Lian Tze'', you would have to specify it as either \texttt{Lian Tze Lim} or \texttt{Lim, Lian Tze} for Bib\TeX{} to recognise ``Lim'' as the last name correctly.  In addition, if the surname or family name of an author consists of multiple words, enclose it with braces to avoid surprises, like so: \texttt{Syed Muhammad Naquib \{al-Attas\}}.
+
+% \section{Citations using the \texttt{natbib} package}
+% The \verb|usmthesis| package imports the \verb|natbib| and \verb|apacite| package which provides flexible citation mechanisms, so see its documentation for more details.  On a MiK\TeX{} installation,
+% % it should be in \url{texmf/doc/latex/natbib/natbib.dvi} or \url{natbib.pdf}, in the path where you installed MiKTeX. 
+% use the command prompt to issue \lstinline|mthelp --view natbib| and \lstinline|mthelp --view apacite| to access the documentation.
+% On TeXLive, simply type \verb|texdoc natbib| and \lstinline|texdoc apacite| and the documentation will be displayed automatically, if it's found on your machine.
+
+% The basic citation commands are \verb|\citet| and \verb|\citep|, which stands for \emph{textual} and \emph{parenthetical} citation respectively.  They take extra arguments, too, for adding notes in the citations.
+
+% \subsection{Author-Year System}
+% The default bibliography style is APA:
+
+% \begin{itemize}[nosep]
+%   \item \verb|\citet{latex:companion}| $\to$ \citet{latex:companion}
+%   \item \verb|\citet[chap.~2]{latex:companion}| $\to$ \citet[chap.~2]{latex:companion}
+%   \item \verb|\citep{latex:companion}| $\to$ \citep{latex:companion}
+%   \item \verb|\citep[chap.~2]{latex:companion}| $\to$ \citep[chap.~2]{latex:companion}
+%   \item \verb|\citep[see also][]{latex:companion}| $\to$ \citep[see also][]{latex:companion}
+%   \item \verb|\citep[see also][chap.~2]{latex:companion}| $\to$ \citep[see also][chap.~2]{latex:companion}
+%   \item \verb|\citet{latex:companion,roberts}| $\to$ \citet{latex:companion,roberts}
+%   \item \verb|\citep{latex:companion,roberts}| $\to$ \citep{latex:companion,roberts}
+% \end{itemize}
+
+% You may also want to write only the author's name or year occassionally:
+
+% \begin{itemize}[nosep]
+%   \item \verb|\citeauthor{latex:companion}| $\to$ \citeauthor{latex:companion}
+%   \item \verb|\citeyear{latex:companion}| $\to$ \citeyear{latex:companion}
+%   \item \verb|\citeyearpar{latex:companion}| $\to$ \citeyearpar{latex:companion}
+% \end{itemize}
+
+% \subsection{Numeric System}
+
+% If you prefer the plain, numerical system, do the following steps first:
+% \begin{enumerate}[nosep]
+%   \item In \texttt{usmthesis.cls}, search for the line \verb|\RequirePackage[natbibapa]{apacite}| and modify it to:\\
+%         \verb|\RequirePackage[numbers]{natbib}|
+%   \item In \texttt{usmthesis.tex}:
+%         \begin{itemize}[nosep]
+%           \item modify the \verb|biblography| styles to: \\
+%                 \verb|\bibliographystyle{plainnat}| \\
+%                 \verb|\bibliographystyleown{plainnat}|
+%         \end{itemize}
+%         or any other number system style that you prefer.
+% \end{enumerate}
+
+% You will then get the following citation outputs:
+
+
+% \begin{itemize}[nosep]
+%   \item \verb|\citet{latex:companion}| $\to$ Mittelbach et al. [1]
+%   \item \verb|\citet[chap.~2]{latex:companion}| $\to$ Mittelbach et al. [1, chap.~2]
+%   \item \verb|\citep{latex:companion}| $\to$ [1]
+%   \item \verb|\citep[chap.~2]{latex:companion}| $\to$ [1, chap.~2]
+%   \item \verb|\citep[see also][]{latex:companion}| $\to$ [see also 1]
+%   \item \verb|\citep[see also][chap.~2]{latex:companion}| $\to$ [see also 1, chap.~2]
+%   \item \verb|\citet{latex:companion,roberts}| $\to$ Mittelbach et al. [1], Roberts [3]
+%   \item \verb|\citep{latex:companion,roberts}| $\to$ [1, 3]
+%   \item \verb|\citeauthor{latex:companion}| $\to$ Mittelbach et al.
+%   \item \verb|\citeyear{latex:companion}| $\to$ 2004
+%   \item \verb|\citeyearpar{latex:companion}| $\to$ [2004]
+% \end{itemize}

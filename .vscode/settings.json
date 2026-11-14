@@ -87,7 +87,7 @@
     "**/chapters/chap-design.tex": true,
     "**/chapters/chap-discussion.tex": true,
     "**/chapters/chap-implementation.tex": true,
-    "**/chapters/chap-literature-review.tex": true,
+    "**/chapters/chap-literature-review.tex": false,
     "**/usmthesis_original.tex": true,
     "**/extra md files": true
   },

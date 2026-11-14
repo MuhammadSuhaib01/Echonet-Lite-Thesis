@@ -60,18 +60,18 @@ Do not number headings manually. LaTeX numbers them automatically.
 
 ### Enable a chapter
 
-In `mainchaps.tex`, remove `%` from the chapter you are ready to include:
+In `mainchaps.tex`, add or uncomment the chapter using `\input`:
 
 ```latex
-\include{chapters/chap-introduction}
-\include{chapters/chap-literature-review}
-\include{chapters/chap-design}
-\include{chapters/chap-implementation}
-\include{chapters/chap-discussion}
-\include{chapters/chap-conclusion}
+\input{chapters/chap-introduction}
+\input{chapters/chap-literature-review}
+\input{chapters/chap-design}
+\input{chapters/chap-implementation}
+\input{chapters/chap-discussion}
+\input{chapters/chap-conclusion}
 ```
 
-The file name must exist, and the path must be correct. Do not write `.tex` after the file name when using `\include`.
+The file name must exist, and the path must be correct. Do not write `.tex` after the file name. This project uses `\input` here so citations from all chapters are written to the main auxiliary file and BibTeX can resolve them correctly when the build uses `-output-directory=build`.
 
 ## 4. Basic Text Formatting
 
