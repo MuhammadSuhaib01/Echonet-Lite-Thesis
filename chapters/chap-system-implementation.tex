@@ -1,0 +1,214 @@
+% =====================================================================
+% CHAPTER 4 -- DESIGN AND IMPLEMENTATION OF ELAF
+% Facts used: author's description of the Docker/emulator setup (multiple
+% emulator instances, Native/ELAF/DTLS/JWT modes, SSNG, trailer placed after
+% the ECHONET Lite frame) and Chapter 3. Unconfirmed details are marked
+% \tbd{} (visible in the PDF) or "TODO(author)" (comment only); see
+% extra/Contents to Complete my masters/Suhaib/chapter-4-6-questionnaire.md.
+% =====================================================================
+\providecommand{\tbd}{\textbf{[TBD]}}
+
+\chapter{DESIGN AND IMPLEMENTATION OF ELAF}
+\label{ch:implementation}
+
+This chapter describes how the ECHONET Lite Authentication Framework (ELAF) presented in Chapter~\ref{ch:methodology} was implemented and prepared for evaluation. It covers the software and tools used, the configuration of the containerised ECHONET Lite network, the implementation of ELAF at the sender and the receiver, and the implementation of the three security modes against which ELAF is compared, namely native ECHONET Lite, Datagram Transport Layer Security (DTLS) and JSON Web Token (JWT). It also describes the physical testbed and the experimental scenarios used to obtain the results reported in Chapter~5.
+
+The remainder of this chapter is organised as follows. Section~\ref{sec:i-req} describes the requirements of the implementation, including the programming environment, the ECHONET Lite emulator, the container network and the traffic-generation and capture tools. Section~\ref{sec:i-modes} describes the implementation of the four security modes, with particular attention to ELAF. Section~\ref{sec:i-testbed} describes the physical testbed. Section~\ref{sec:i-scenarios} describes the experimental scenarios, and Section~\ref{sec:i-summary} summarises the chapter.
+
+%--------------------------------------------------------------------
+\section{Requirements for the ELAF Implementation}
+\label{sec:i-req}
+
+The evaluation of ELAF requires an environment in which several ECHONET Lite nodes can exchange messages, in which the same exchange can be repeated under different security modes, and in which an adversary can observe and inject traffic. These requirements are met by running multiple instances of an ECHONET Lite emulator in an isolated container network, extending the emulator with the security modes, and using dedicated tools to generate and capture traffic.
+
+\subsection{Programming Environment}
+\label{sec:i-lang}
+
+ELAF and the comparison modes were implemented in \tbd{}. The cryptographic operations of ELAF, namely HMAC-SHA-256 and its truncation, were implemented using \tbd{}. The DTLS mode was implemented using \tbd{}, and the JWT mode using \tbd{}. All four modes were implemented within the same emulator code base and in the same language, so that differences in the measured processing time reflect the mechanisms themselves rather than differences in implementation language or platform.
+% TODO(author): Fill in the language/version and libraries (questionnaire A5).
+
+\subsection{ECHONET Lite Emulator}
+\label{sec:i-emulator}
+
+ECHONET Lite devices were represented by an ECHONET Lite emulator, \tbd{}, which implements the ECHONET Lite communication processing of a node, including the reception, parsing and response to Format~1 frames on UDP port 3610 \citep{ECHONETPart2}. Each running instance of the emulator represents one ECHONET Lite node hosting one or more device objects. The emulator was extended so that, in addition to standard (native) operation, it can append and verify a security trailer according to the selected security mode, as described in Section~\ref{sec:i-modes}.
+% TODO(author): Emulator name, version, source and emulated device objects (questionnaire A4).
+
+\subsection{Containerised Network}
+\label{sec:i-docker}
+
+Docker was used to create an isolated network for ECHONET Lite communication. Isolation ensures that the measured traffic is produced only by the experiment, and that the attack traffic generated during the evaluation cannot affect other networks. Because an ECHONET Lite node communicates with other nodes rather than with itself, at least two emulator instances are required for a message exchange. Each instance runs in its own container with its own IP address on the container network, as shown in Table~\ref{tab:containers}. For example, the instance \texttt{emu1} acts as the requesting node and \texttt{emu2} as the responding node, and messages are exchanged between their addresses on UDP port 3610.
+
+% TODO(author): Confirm addresses. 172.168.x.x is a public range; Docker private networks normally use
+% 172.16.0.0/12 (e.g., 172.18.0.2). Note also that x.x.x.1 is usually the Docker bridge gateway.
+\begin{table}[htbp]
+  \centering
+  \caption{Emulator instances in the containerised ECHONET Lite network}
+  \label{tab:containers}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l l X@{}}
+    \toprule
+    \textbf{Instance} & \textbf{IP address}       & \textbf{Role}                                  \\
+    \midrule
+    \texttt{emu1}     & 172.168.0.1 \tbd{}        & Requesting node (controller role) \tbd{}       \\
+    \texttt{emu2}     & 172.168.0.2 \tbd{}        & Responding node (device role) \tbd{}           \\
+    \tbd{}            & \tbd{}                    & \tbd{}                                         \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Traffic Generation and Packet Capture}
+\label{sec:i-tools}
+
+Three tools were used to generate and observe traffic. SSNG is an ECHONET Lite controller tool that sends ECHONET Lite requests to nodes on the network. In this study it represents an ECHONET Lite controller that does not hold the ELAF key, and it is therefore used to send unauthenticated requests to the emulated devices. Scapy, a packet-manipulation library, is used to craft frames that cannot be produced through SSNG, such as modified and replayed frames. Wireshark captures the traffic exchanged between the containers and dissects each frame, which allows the size of each message and the content of its security trailer to be inspected from the perspective of an observer on the network.
+% TODO(author): Versions of SSNG, Scapy and Wireshark, and how SSNG was operated (questionnaire A6).
+
+\subsection{Host Platform}
+\label{sec:i-host}
+
+The containerised network was run on a host computer with the specifications listed in Table~\ref{tab:host}. Because all containers share the resources of one host, network delay between containers is small and stable, so that measured differences between security modes are dominated by the processing performed by each mode.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Host platform specifications}
+  \label{tab:host}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l X@{}}
+    \toprule
+    \textbf{Item}        & \textbf{Specification} \\
+    \midrule
+    Processor            & \tbd{}                 \\
+    Memory               & \tbd{}                 \\
+    Operating system     & \tbd{}                 \\
+    Docker version       & \tbd{}                 \\
+    Container network    & \tbd{}                 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+%--------------------------------------------------------------------
+\section{Implementation of the Security Modes}
+\label{sec:i-modes}
+
+All four modes use the same message structure: the unmodified ECHONET Lite frame, optionally followed by a security trailer. In native mode the trailer is absent. In ELAF, DTLS and JWT modes, the sender appends the trailer of the selected mode immediately after the frame, and the receiver treats the bytes that follow the end of the ECHONET Lite frame as the trailer. Because the frame is not altered, the SEOJ, DEOJ, ESV and property fields remain in their standard positions in every mode, and the comparison between modes isolates the cost and effect of the trailer itself.
+% TODO(author): Confirm how the receiver locates the end of the frame, e.g. by parsing OPC and the PDC of
+% each property (questionnaire B1).
+
+A receiver configured for a protected mode processes a message only if it carries a valid trailer of that mode. A message without a trailer, or with a trailer that fails verification, is discarded without a response. This behaviour is the basis of the security results in Chapter~5: a request sent by SSNG, which produces native frames, receives a response from a node operating in native mode but no response from a node operating in ELAF, DTLS or JWT mode.
+
+\subsection{Native ECHONET Lite}
+
+In native mode the emulator sends and accepts standard ECHONET Lite frames without any security trailer, as specified in Part~II of the specification \citep{ECHONETPart2}. Native mode serves as the baseline for all performance measurements, because the overhead of each security mode is expressed relative to it.
+
+\subsection{ELAF}
+\label{sec:i-elaf}
+
+ELAF was implemented according to the design in Section~\ref{sec:m-design}. The sender and receiver procedures are described below.
+
+\paragraph{Sender.} When the emulator generates a request, the ELAF module receives the complete ECHONET Lite frame $F$ and constructs the SEF of Table~\ref{tab:sef}. It sets the version to \texttt{0x03}, sets the ToM configured for the node and the corresponding SEF length, records the current time as the timestamp, increments the node's counter, and computes the truncated HMAC-SHA-256 tag of Equation~\ref{eq:tag} with the shared key. The SEF is then appended to $F$ and the message is passed to the UDP socket. The steps are summarised in Algorithm~\ref{alg:elaf-send}.
+
+\begin{algorithm}[htbp]
+  \caption{ELAF message generation at the sender}
+  \label{alg:elaf-send}
+  \begin{algorithmic}[1]
+    \Require ECHONET Lite frame $F$, shared key $K$, configured mechanism ToM, counter $c$
+    \State $V \gets \texttt{0x03}$; $\ell \gets$ tag length for ToM; $L \gets 11 + \ell$
+    \State $\tau \gets$ current time
+    \State $c \gets c + 1$
+    \State $t \gets \mathrm{Trunc}_{\ell}(\mathrm{HMAC\text{-}SHA\text{-}256}(K, V \| L \| \mathrm{ToM} \| \tau \| c \| F))$
+    \State $\mathit{SEF} \gets V \| L \| \mathrm{ToM} \| \tau \| c \| t$
+    \State send $F \| \mathit{SEF}$ to the destination on UDP port 3610
+  \end{algorithmic}
+\end{algorithm}
+
+The constant 11 in Algorithm~\ref{alg:elaf-send} is the combined size in bytes of the version, length, ToM, timestamp and counter fields, so that $L$ equals 23, 27 or 43 bytes for ToM~96, 128 and 256 respectively (Table~\ref{tab:tom}).
+% TODO(author): Confirm that the HMAC input includes F (questionnaire C1) and the ToM used in the
+% experiments (questionnaire B5).
+
+\paragraph{Receiver.} When a message arrives, the ELAF module separates the ECHONET Lite frame from the SEF and applies the verification procedure of Algorithm~\ref{alg:verify}: the structural check of the version, ToM and length fields, the suspension check, the freshness check, the duplicate check against the request table, the recomputation and comparison of the tag, and the request-rate check. If every check succeeds, the SEF is removed and the frame is passed to the emulator's ECHONET Lite processing, which generates the response. The response is protected with an SEF generated by the responding node.
+% TODO(author): Confirm the order of checks, the constant-time comparison, and the response SEF
+% (questionnaire C5, C7).
+
+\paragraph{Request table.} Each ELAF node keeps its request table in memory, keyed by the source identifier of each request. Entries are cleared every 5~s, a source that repeats a counter value is suspended for 500~ms, and a source that sends more than five requests within 3~s is suspended for 30~s, as specified in Section~\ref{sec:m-rate}.
+% TODO(author): Source identifier and final threshold values (questionnaire C4, C6).
+
+\subsection{DTLS}
+\label{sec:i-dtls}
+
+DTLS is the transport-layer security protocol to which the ECHONET Lite Guidelines refer for the protection of UDP communication, and it provides authentication, integrity, confidentiality and replay detection between two endpoints \citep{ECHONETGuidelines,RFC6347,RFC9147}. It was therefore selected as a representative of the lower-layer protection to which ECHONET Lite delegates security. In this study, DTLS was implemented as \tbd{}, with protocol version \tbd{} and cipher suite \tbd{}. In this mode, the receiving emulator expects the DTLS data after the ECHONET Lite frame, and discards any message that does not carry it.
+% TODO(author) -- IMPORTANT: Standard DTLS wraps the whole datagram in an encrypted record after a
+% handshake; it is not normally appended after a plaintext frame. Describe exactly what was implemented
+% (real library session vs. DTLS-style trailer), whether the payload is encrypted, the number of added
+% bytes, and whether handshake time is included in latency (questionnaire B3). The wording here must
+% match the implementation, or an examiner may question the comparison.
+
+\subsection{JSON Web Token}
+\label{sec:i-jwt}
+
+JWT is a compact, URL-safe format for representing claims that are digitally signed or protected with a message authentication code \citep{RFC7519}. It is widely used for token-based authentication in web and IoT services, and it was selected as a representative application-layer token mechanism. In this study, the JWT was signed with \tbd{} and contained the claims \tbd{}. The encoded token was appended after the ECHONET Lite frame, and the receiving emulator verified the token before processing the frame.
+% TODO(author): Algorithm, claims, whether F is covered, encoding, added bytes, and replay protection
+% (questionnaire B4).
+
+\subsection{Comparison of the Implemented Modes}
+
+Table~\ref{tab:modes} summarises the four modes as implemented. The security properties listed for DTLS and JWT are those of the implementation used in this study, which are to be confirmed against the code.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Security modes implemented for the evaluation}
+  \label{tab:modes}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}X c c c c@{}}
+    \toprule
+    \textbf{Mode} & \textbf{Trailer after the frame} & \textbf{Auth.} & \textbf{Integrity} & \textbf{Replay} & \textbf{Added bytes} \\
+    \midrule
+    Native        & None                                   & No     & No     & No     & 0                     \\
+    ELAF          & SEF (Table~\ref{tab:sef})              & Yes    & Yes    & Yes    & 23 (ToM~96)           \\
+    DTLS          & \tbd{}                                 & \tbd{} & \tbd{} & \tbd{} & \tbd{}                \\
+    JWT           & Encoded token \tbd{}                   & \tbd{} & \tbd{} & \tbd{} & \tbd{}                \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+%--------------------------------------------------------------------
+\section{Physical Testbed}
+\label{sec:i-testbed}
+
+In addition to the containerised network, a physical testbed was prepared to examine ELAF with commercial ECHONET Lite appliances, as described in Section~\ref{sec:m-emulation}. The testbed consists of commercial appliances, an ELAF-enabled controller (\texttt{auth\_controller}) and a translator node, each running on a Raspberry Pi~5, together with an emulated ELAF-enabled device (\texttt{auth\_ambient\_light}). The translator verifies ELAF requests on behalf of the commercial appliances, which do not implement ELAF, and forwards only verified requests to them as standard ECHONET Lite frames.
+% TODO(author): State whether the physical testbed experiments have been run and produced results
+% (questionnaire A7). If not, move this section to Future Work in Chapter 6.
+
+%--------------------------------------------------------------------
+\section{Experimental Scenarios}
+\label{sec:i-scenarios}
+
+The experiments were organised into the scenarios listed in Table~\ref{tab:scenarios}. Each performance scenario was executed under all four modes using the same ECHONET Lite request, so that the results differ only in the security mode. Each experiment was repeated \tbd{} times.
+% TODO(author): ESV/EPC used, native frame size, repetitions, and attack rates (questionnaire D1--D6).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Experimental scenarios}
+  \label{tab:scenarios}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.6cm}@{}}
+    \toprule
+    \textbf{ID} & \textbf{Scenario}                & \textbf{Procedure}                                                                                                   & \textbf{Metrics}                         \\
+    \midrule
+    S1          & Legitimate exchange              & \texttt{emu1} sends \tbd{} requests to \texttt{emu2} in each mode and receives the responses                          & Frame size, latency, processing time     \\
+    S2          & Sustained legitimate load        & Requests are sent at increasing rates to measure the rate at which responses are returned                           & Throughput                               \\
+    S3          & Unauthenticated injection        & SSNG sends native requests to nodes operating in each mode                                                          & Attack success rate                      \\
+    S4          & Modified frame                   & A captured protected frame is altered (e.g., EDT) and retransmitted with its original trailer                        & Attack success rate                      \\
+    S5          & Replay                           & A captured protected frame is retransmitted unchanged within and after the timestamp tolerance                      & Attack success rate                      \\
+    S6          & Flooding                         & Requests are sent at a high rate from one source                                                                    & Throughput, detection accuracy           \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+% TODO(author): Delete any scenario that was not actually performed (S2, S4--S6 are inferred from
+% Chapter 3 and must be confirmed).
+
+%--------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:i-summary}
+
+This chapter described the implementation of ELAF and of the environment used to evaluate it. ECHONET Lite nodes were represented by multiple instances of an ECHONET Lite emulator, each running in its own container on an isolated Docker network, so that messages could be exchanged between distinct nodes. The emulator was extended with four security modes, namely native ECHONET Lite, ELAF, DTLS and JWT, all of which leave the ECHONET Lite frame unchanged and place any security data in a trailer that follows the frame. The sender and receiver procedures of ELAF, including the construction of the SEF, the verification sequence and the request table, were implemented as designed in Chapter~\ref{ch:methodology}. SSNG, Scapy and Wireshark were used to generate legitimate and adversarial traffic and to inspect the resulting frames, and a physical testbed with commercial appliances was prepared. The experimental scenarios defined in this chapter produce the results presented and discussed in Chapter~5.

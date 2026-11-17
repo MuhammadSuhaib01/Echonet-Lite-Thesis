@@ -1,0 +1,248 @@
+% =====================================================================
+% CHAPTER 5 -- RESULTS AND DISCUSSION
+% STRUCTURE ONLY FOR THE MEASURED RESULTS. No measured value has been
+% entered. Every \tbd{} must be replaced with data from the experiments
+% (questionnaire section E). Interpretive sentences that depend on the data
+% are marked "TODO(author)" and must be written or checked once the data
+% are available; do not keep a comparative claim the data do not support.
+% =====================================================================
+\providecommand{\tbd}{\textbf{[TBD]}}
+
+\chapter{RESULTS AND DISCUSSION}
+\label{ch:results}
+
+This chapter presents and discusses the results obtained by evaluating ELAF in the environment described in Chapter~\ref{ch:implementation}. ELAF is compared with native ECHONET Lite, which provides no protection and therefore serves as the performance baseline, and with DTLS and JWT, which represent transport-layer and token-based approaches to securing the same communication. The evaluation addresses the third research objective, namely to evaluate the proposed mechanism in terms of security behaviour and performance overhead relative to standard ECHONET Lite communication.
+
+The evaluation is carried out in two parts. The first part measures the cost of each mode, in terms of communication overhead, latency, processing time and throughput, using the metrics defined in Section~\ref{sec:m-metrics}. The second part measures the security behaviour of each mode under the attack scenarios defined in Section~\ref{sec:i-scenarios}. Each experiment was repeated \tbd{} times, and the results are reported as the minimum, maximum, mean and standard deviation (SD) across repetitions, where SD indicates the consistency of the measurements.
+
+The remainder of this chapter is organised as follows. Section~\ref{sec:r-perf} presents the performance results. Section~\ref{sec:r-sec} presents the security results. Section~\ref{sec:r-disc} discusses the results in relation to the research objectives and the limitations of the evaluation, and Section~\ref{sec:r-summary} summarises the chapter.
+
+%--------------------------------------------------------------------
+\section{Performance Evaluation}
+\label{sec:r-perf}
+
+\subsection{Communication Overhead}
+\label{sec:r-overhead}
+
+Every protected mode adds data to each ECHONET Lite message, which increases the number of bytes transmitted and processed per exchange. Table~\ref{tab:r-size} lists the size of the test frame in each mode and the relative overhead computed with Equation~\ref{eq:co}. The native frame is the ECHONET Lite request described in Section~\ref{sec:i-scenarios}, and its size is identical in every mode because no mode alters the frame.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Message size and communication overhead per security mode}
+  \label{tab:r-size}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}X c c c c@{}}
+    \toprule
+    \textbf{Mode} & \textbf{Frame (bytes)} & \textbf{Trailer (bytes)} & \textbf{Total (bytes)} & \textbf{Overhead (\%)} \\
+    \midrule
+    Native        & \tbd{}                 & 0                        & \tbd{}                 & 0                      \\
+    ELAF (ToM~96) & \tbd{}                 & 23                       & \tbd{}                 & \tbd{}                 \\
+    DTLS          & \tbd{}                 & \tbd{}                   & \tbd{}                 & \tbd{}                 \\
+    JWT           & \tbd{}                 & \tbd{}                   & \tbd{}                 & \tbd{}                 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The ELAF trailer has a fixed size of 23 bytes for ToM~96, independent of the content of the frame, so its absolute overhead is constant and predictable for every message. Its relative overhead is largest for the shortest frames: for the 14-byte single-property Get request discussed in Section~\ref{sec:m-metrics}, it is approximately 62\% at the ECHONET Lite level, and it decreases as the frame grows.
+% TODO(author): Compare with DTLS and JWT once their sizes are known. A JWT is base64url-encoded JSON,
+% so its size depends on its header and claims; report the measured value rather than a typical one.
+
+\subsection{Latency}
+\label{sec:r-latency}
+
+Latency was measured as the round-trip time between the transmission of a request by \texttt{emu1} and the reception of the corresponding response from \texttt{emu2}. Table~\ref{tab:r-latency} summarises the results.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Round-trip latency per security mode (ms)}
+  \label{tab:r-latency}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}X c c c c c@{}}
+    \toprule
+    \textbf{Mode} & \textbf{Min} & \textbf{Max} & \textbf{Mean} & \textbf{SD} & \textbf{Overhead vs.\ native} \\
+    \midrule
+    Native        & \tbd{}       & \tbd{}       & \tbd{}        & \tbd{}      & ---                           \\
+    ELAF          & \tbd{}       & \tbd{}       & \tbd{}        & \tbd{}      & \tbd{}                        \\
+    DTLS          & \tbd{}       & \tbd{}       & \tbd{}        & \tbd{}      & \tbd{}                        \\
+    JWT           & \tbd{}       & \tbd{}       & \tbd{}        & \tbd{}      & \tbd{}                        \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+The latency overhead of each mode is computed relative to native ECHONET Lite as
+\begin{equation}
+  \mathit{Overhead}_{\mathrm{mode}} = \mathrm{Mean}(\mathit{Lat}_{\mathrm{mode}}) - \mathrm{Mean}(\mathit{Lat}_{\mathrm{native}}) .
+  \label{eq:r-overhead}
+\end{equation}
+
+% TODO(author): Insert a figure of latency per run for the four modes, and describe: (1) which mode has the
+% lowest overhead, (2) the size of ELAF's overhead in ms, (3) the consistency (SD) of each mode. State
+% whether DTLS latency includes the handshake.
+\begin{figure}[htb!]
+  \centering
+  % TODO(author): Latency per experiment run, Native vs. ELAF vs. DTLS vs. JWT.
+  \includegraphics[width=0.85\textwidth]{chapters/figures/placeholder.png}
+  \caption{Round-trip latency per experiment run for each security mode}
+  \label{fig:r-latency}
+\end{figure}
+
+\subsection{Processing Time}
+\label{sec:r-pt}
+
+Processing time isolates the computation performed by each security mode from network delay. It was measured with Equation~\ref{eq:pt} at the sender, for generating the trailer, and at the receiver, for verifying it. Table~\ref{tab:r-pt} summarises the results.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Processing time at the sender and the receiver per security mode (ms)}
+  \label{tab:r-pt}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}X c c c c@{}}
+    \toprule
+    \textbf{Mode} & \textbf{Sender mean} & \textbf{Sender SD} & \textbf{Receiver mean} & \textbf{Receiver SD} \\
+    \midrule
+    Native        & \tbd{}               & \tbd{}             & \tbd{}                 & \tbd{}               \\
+    ELAF          & \tbd{}               & \tbd{}             & \tbd{}                 & \tbd{}               \\
+    DTLS          & \tbd{}               & \tbd{}             & \tbd{}                 & \tbd{}               \\
+    JWT           & \tbd{}               & \tbd{}             & \tbd{}                 & \tbd{}               \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+% TODO(author): Delete this subsection if processing time was not measured separately from latency
+% (questionnaire D4).
+
+\subsection{Throughput}
+\label{sec:r-tp}
+
+Throughput was measured with Equation~\ref{eq:tp} as the number of requests successfully processed per second by the responding node, both under legitimate load and while the node was being flooded. Table~\ref{tab:r-tp} summarises the results.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Throughput per security mode (requests per second)}
+  \label{tab:r-tp}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}X c c@{}}
+    \toprule
+    \textbf{Mode} & \textbf{Legitimate load} & \textbf{Under flooding} \\
+    \midrule
+    Native        & \tbd{}                   & \tbd{}                  \\
+    ELAF          & \tbd{}                   & \tbd{}                  \\
+    DTLS          & \tbd{}                   & \tbd{}                  \\
+    JWT           & \tbd{}                   & \tbd{}                  \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+% TODO(author): Note that the ELAF rate policy (more than 5 requests in 3 s from one source) caps the
+% legitimate throughput from a single source by design. Explain how throughput was measured so that this
+% cap is not mistaken for a performance limit (questionnaire D5).
+
+%--------------------------------------------------------------------
+\section{Security Evaluation}
+\label{sec:r-sec}
+
+The security evaluation examines whether each mode prevents the attacks defined in Section~\ref{sec:m-threat}. For each attack, the attack success rate of Equation~\ref{eq:asr} is reported, where an attack message is counted as effective if the target node responded to it or changed its state. The results are summarised in Table~\ref{tab:r-asr} and discussed in the subsections that follow.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Attack success rate per security mode}
+  \label{tab:r-asr}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}X c c c c@{}}
+    \toprule
+    \textbf{Attack}                        & \textbf{Native} & \textbf{ELAF} & \textbf{DTLS} & \textbf{JWT} \\
+    \midrule
+    Unauthenticated injection (SSNG)       & \tbd{}          & \tbd{}        & \tbd{}        & \tbd{}       \\
+    Modified frame                         & \tbd{}          & \tbd{}        & \tbd{}        & \tbd{}       \\
+    Replay within tolerance                & \tbd{}          & \tbd{}        & \tbd{}        & \tbd{}       \\
+    Replay after tolerance                 & \tbd{}          & \tbd{}        & \tbd{}        & \tbd{}       \\
+    Flooding                               & \tbd{}          & \tbd{}        & \tbd{}        & \tbd{}       \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Unauthenticated Command Injection}
+\label{sec:r-injection}
+
+In this scenario, SSNG was used to send standard ECHONET Lite requests, which carry no security trailer, to emulated nodes operating in each mode. When the target node operated in native mode, it processed the requests and returned responses, which confirms that a standard ECHONET Lite node accepts commands from any sender that can reach it, as discussed under limitation L2 in Chapter~2. When the target node operated in ELAF, DTLS or JWT mode, it did not respond to the requests, because each protected mode requires its own trailer after the ECHONET Lite frame and discards any message that does not carry a valid one.
+% TODO(author): Add the number of SSNG requests sent and answered in each mode, and a Wireshark screenshot
+% showing requests without responses in ELAF mode (questionnaire D6.1, E5, E7).
+
+This result also illustrates an EDoS scenario of the kind defined in Section~\ref{sec:m-attacks}. A Set request that switches an air conditioner to its most energy-intensive setting is accepted by a native node from any sender, but is discarded by an ELAF node unless it is generated by a holder of the shared key.
+% TODO(author): Keep this paragraph only if a Set (0x60/0x61) request was among those tested.
+
+\subsection{Message Modification}
+
+In this scenario, a protected frame was captured and its property value was altered before retransmission, with the original trailer left unchanged.
+% TODO(author): Report the result for each mode. In ELAF, this test is rejected only if the HMAC covers
+% the ECHONET Lite frame (questionnaire C1); if it does not, report the actual outcome honestly.
+
+\subsection{Replay Attack}
+
+In this scenario, a valid protected frame was captured and retransmitted unchanged, once within the timestamp tolerance of 1000~ms and once after it. According to the design in Section~\ref{sec:m-rate}, ELAF is expected to reject the first by its duplicate check and the second by its freshness check.
+% TODO(author): Report the measured outcome for each mode, including whether the JWT mode has any
+% replay protection (questionnaire B4.6, D6.2).
+
+\subsection{Flooding and Denial of Service}
+
+In this scenario, requests were sent from a single source at \tbd{} requests per second for \tbd{}~s.
+% TODO(author): Report (1) when ELAF suspended the source, (2) whether legitimate requests from another
+% source were still served during the flood, (3) the behaviour of the other modes.
+
+\subsection{Detection Accuracy}
+
+Table~\ref{tab:r-acc} reports the detection accuracy of ELAF, computed with Equation~\ref{eq:acc} over all legitimate and attack messages in the scenarios above, together with the false-positive and false-negative rates.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Detection accuracy of ELAF}
+  \label{tab:r-acc}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}X c@{}}
+    \toprule
+    \textbf{Measure}                                  & \textbf{Value} \\
+    \midrule
+    Legitimate messages accepted (TN)                 & \tbd{}         \\
+    Legitimate messages rejected (FP)                 & \tbd{}         \\
+    Attack messages rejected (TP)                     & \tbd{}         \\
+    Attack messages accepted (FN)                     & \tbd{}         \\
+    Accuracy (\%)                                     & \tbd{}         \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+%--------------------------------------------------------------------
+\section{Discussion}
+\label{sec:r-disc}
+
+This section relates the results to the research objectives stated in Chapter~1.
+
+\subsection{Attainment of Message Authentication and Integrity}
+
+The first objective was to propose a frame-level mechanism that provides message authentication and data integrity without changing the ECHONET Lite object and property model. ELAF leaves the ECHONET Lite frame unchanged and appends the SEF after it, so that the SEOJ, DEOJ, ESV and property fields retain their standard positions and meanings. A receiver accepts a frame only if the HMAC tag recomputed with the shared key matches the received tag. The injection results in Section~\ref{sec:r-injection} show that frames without a valid SEF were not processed.
+% TODO(author): Add the modification result. Objective 1 (integrity) is attained only if the HMAC covers
+% the frame and the modified-frame test was rejected.
+
+Because all nodes share one key, the authentication provided is group authentication: a valid tag shows that a message was produced by a holder of the key, but not which device produced it, as recorded in Section~\ref{sec:m-attack-limits}.
+
+\subsection{Attainment of Anti-Replay and Temporal Validation}
+
+The second objective was to provide an anti-replay and temporal-validation mechanism. ELAF combines a timestamp checked against a 1000~ms tolerance, a per-sender counter, and a request table that records recent requests. Because both the timestamp and the counter are covered by the HMAC tag, an adversary cannot alter them in a captured frame without invalidating it.
+% TODO(author): Conclude from the replay results.
+
+\subsection{Performance Overhead}
+
+The third objective was to evaluate the mechanism in terms of security behaviour and performance overhead relative to standard ECHONET Lite. ELAF adds a fixed 23-byte trailer to each message.
+% TODO(author): Summarise the measured latency, processing-time and throughput overhead of ELAF relative to
+% native, and compare with DTLS and JWT. Only claim that ELAF is lighter than DTLS or JWT if Tables 5.1 to
+% 5.4 show it.
+
+\subsection{Limitations of the Evaluation}
+
+The results should be interpreted within the limits of the evaluation environment, as stated in the scope of this study in Chapter~1. All emulator instances ran on a single host, so network delay between nodes was smaller and more stable than in a residential network, and the processing capacity of the host is greater than that of typical appliance microcontrollers. The measured processing times therefore indicate the relative cost of the modes rather than the absolute cost on constrained appliances. In addition, the results describe the specific implementations of DTLS and JWT used in this study, which are described in Sections~\ref{sec:i-dtls} and~\ref{sec:i-jwt}.
+
+%--------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:r-summary}
+
+This chapter presented the evaluation of ELAF against native ECHONET Lite, DTLS and JWT in terms of communication overhead, latency, processing time and throughput, and in terms of its behaviour under unauthenticated injection, message modification, replay and flooding. Unauthenticated requests sent with SSNG were processed by nodes in native mode but received no response from nodes operating in ELAF, DTLS or JWT mode.
+% TODO(author): Complete the summary with the main measured findings once Tables 5.1 to 5.6 are filled.
+Chapter~6 concludes the thesis and outlines directions for future work.

@@ -1,0 +1,73 @@
+% =====================================================================
+% CHAPTER 6 -- CONCLUSION AND FUTURE WORK
+% Statements about measured performance are left as TODO(author) until
+% Chapter 5 is complete. Future-work items are proposals, not results.
+% =====================================================================
+\providecommand{\tbd}{\textbf{[TBD]}}
+
+\chapter{CONCLUSION AND FUTURE WORK}
+\label{ch:conclusion}
+
+This chapter summarises the research presented in this thesis, assesses the extent to which its objectives have been attained, records its limitations, and proposes directions for future work. Section~\ref{sec:c-conclusion} presents the conclusions of the study, Section~\ref{sec:c-limits} its limitations, and Section~\ref{sec:c-future} possible future work.
+
+%--------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:c-conclusion}
+
+Home Energy Management Systems coordinate residential appliances, smart meters and distributed energy resources, and in Japan and other markets much of this coordination is carried by the ECHONET Lite protocol. ECHONET Lite was designed for interoperability within residential networks, and its specification states that security is not specified in its communication processing block, delegating protection to lower layers on an optional and heterogeneous basis \citep{ECHONETPart2,ECHONETGuidelines}. The analysis in Chapter~2 showed that, as a consequence, a standard ECHONET Lite frame carries no means of establishing its origin, detecting its modification or recognising its repetition. A node that can reach a residential network can therefore construct, alter or replay commands that an appliance accepts as legitimate.
+
+This research addressed that gap by proposing the ECHONET Lite Authentication Framework (ELAF), an application-layer mechanism that appends a fixed-structure Security Extension Field to each ECHONET Lite message without altering the frame itself. The SEF carries a version identifier, a length, a mechanism identifier, a timestamp, a monotonic counter and a truncated HMAC-SHA-256 tag, occupying 23 bytes in its default configuration. A receiver accepts a message only if its structure, freshness, uniqueness and authentication tag are valid and its sender is within the permitted request rate. ELAF was implemented in an ECHONET Lite emulator running as multiple instances on an isolated Docker network, and it was compared with native ECHONET Lite, DTLS and JWT. Table~\ref{tab:c-objectives} maps the research objectives to the sections in which they are addressed.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Research objectives and their attainment}
+  \label{tab:c-objectives}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{2.8cm}@{}}
+    \toprule
+    \textbf{Research objective}                                                                                                     & \textbf{How it is addressed}                                                                                                                                             & \textbf{Section}                                                    \\
+    \midrule
+    1. To propose a frame-level security mechanism that provides message authentication and data integrity without changing the object and property model & ELAF appends an SEF containing an HMAC-SHA-256 tag after the unmodified ECHONET Lite frame; a receiver discards any frame whose tag is invalid. \tbd{}                     & \ref{sec:m-design}, \ref{sec:i-elaf}, \ref{sec:r-sec}               \\
+    2. To propose an anti-replay and temporal-validation mechanism                                                                 & A timestamp with a 1000~ms tolerance, a per-sender counter and a request table, all bound to the tag, reject stale and duplicated frames. \tbd{}                         & \ref{sec:m-sef}, \ref{sec:m-rate}, \ref{sec:r-sec}                  \\
+    3. To evaluate the mechanism in terms of security behaviour and performance overhead                                           & ELAF was compared with native ECHONET Lite, DTLS and JWT in terms of message size, latency, processing time, throughput and attack success rate. \tbd{}                  & \ref{sec:r-perf}, \ref{sec:r-sec}                                   \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+% TODO(author): Replace each [TBD] with a one-line statement of the measured outcome from Chapter 5, e.g.
+% "All N unauthenticated requests were discarded." Do not state attainment that the results do not show.
+
+The evaluation showed that unauthenticated ECHONET Lite requests sent with SSNG were processed by nodes operating in native mode but were not answered by nodes operating in ELAF, DTLS or JWT mode.
+% TODO(author): Add 2--4 sentences summarising the measured overhead of ELAF relative to native, DTLS and
+% JWT, and the replay and flooding results, once Chapter 5 is complete.
+
+%--------------------------------------------------------------------
+\section{Limitations}
+\label{sec:c-limits}
+
+The conclusions of this study are subject to the following limitations, several of which follow from the design assumptions stated in Chapter~\ref{ch:methodology}.
+
+\begin{enumerate}
+  \item \textbf{Single shared key.} All ELAF nodes share one pre-installed key. The mechanism therefore provides group authentication rather than per-device authentication, and the compromise of any one device exposes the key used by all of them. Key generation, distribution, renewal and revocation were outside the scope of the study.
+  \item \textbf{No confidentiality.} ELAF authenticates messages but does not encrypt property values, so the confidentiality limitation of ECHONET Lite (L4 in Chapter~2) remains.
+  \item \textbf{Static rate thresholds.} The request-rate threshold and suspension periods are fixed values chosen for the evaluated environment. They do not distinguish legitimate high-frequency traffic, such as automated control or frequent polling, from an attack.
+  \item \textbf{Authenticated misuse.} ELAF cannot prevent harmful commands, including economic denial-of-service commands, issued by a compromised holder of the key at a rate below the threshold.
+  \item \textbf{Interoperability with existing devices.} ELAF nodes do not communicate with nodes that do not implement ELAF, so deployment alongside the installed base of ECHONET Lite appliances requires an intermediary such as the translator used in the testbed.
+  \item \textbf{Evaluation environment.} The performance results were obtained on emulated nodes running on a single host. They indicate the relative cost of the compared modes, but not the absolute cost on resource-constrained appliance hardware or over a residential wireless network.
+\end{enumerate}
+
+%--------------------------------------------------------------------
+\section{Future Work}
+\label{sec:c-future}
+
+Although ELAF addresses the objectives of this research, several extensions would strengthen it and widen its applicability. The following directions are proposed.
+
+\begin{enumerate}
+  \item \textbf{Key management and per-device keys.} Replacing the single shared key with per-device or per-pair keys, together with a mechanism for provisioning, renewing and revoking them, would provide per-device authentication and limit the effect of a compromised device. The PKI-based device identity initiative announced by the ECHONET Consortium \citep{SEALSQ2026} could provide a basis for such provisioning.
+  \item \textbf{Optional payload encryption.} An additional mechanism type could apply authenticated encryption to the property data, so that a single SEF provides confidentiality as well as authentication and integrity for devices that can support the extra cost.
+  \item \textbf{Adaptive request-rate control.} The fixed thresholds could be replaced by thresholds that adapt to the device class and to the observed traffic, reducing the risk of suspending legitimate high-frequency sources.
+  \item \textbf{Anomaly detection on capable devices.} Devices with sufficient resources, such as HEMS controllers and high-power appliances, could analyse the request table with a learning-based anomaly detector in order to identify attacks that remain below the static thresholds. This component was considered during the design of ELAF but was not implemented or evaluated in this study.
+  \item \textbf{Evaluation on appliance hardware.} Implementing ELAF in the firmware of resource-constrained appliances, and evaluating it on the physical testbed and over residential wireless links, would establish its absolute cost under realistic conditions.
+  \item \textbf{Multicast and broadcast messages.} The behaviour of ELAF for multicast requests, which ECHONET Lite uses for discovery and which may address many nodes at once, should be examined in detail.
+\end{enumerate}
+% TODO(author): Add, remove or reorder items according to questionnaire F1.

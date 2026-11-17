@@ -1,0 +1,492 @@
+% =====================================================================
+% CHAPTER 3 -- METHODOLOGY
+% Source of design facts: author's draft ("Chapter 3 To do.txt"), the
+% Chapter 3 questionnaire (chapter-3.md) and the experiment diagrams in
+% extra/Contents to Complete my masters/Suhaib/.
+% Lines marked "TODO(author)" are unresolved points that must be confirmed
+% against the implementation before submission.
+% =====================================================================
+\chapter{METHODOLOGY}
+\label{ch:methodology}
+
+This chapter presents the security mechanism proposed in this study, referred to as the ECHONET Lite Authentication Framework (ELAF). ELAF introduces a fixed-structure Security Extension Field (SEF) that is carried with every ECHONET Lite message exchanged between ELAF-enabled nodes. The SEF carries the information that a receiving node requires to decide, at the application layer and without relying on protection provided by lower layers, whether a message originates from a holder of the shared secret key, whether it has been modified in transit, whether it is fresh, and whether its sender is behaving within the request rate permitted by the receiver. The mechanism is designed to address the limitations of origin authentication, integrity and freshness (L2, L3 and L5) identified in Chapter~2, and to reduce the effect of replay, denial-of-service (DoS) and economic denial-of-service (EDoS) attacks on residential appliances.
+
+ELAF operates in three stages. In the first stage, the sender constructs the SEF and computes a keyed-hash message authentication code (HMAC) over the protected data. In the second stage, the SEF is attached to the ECHONET Lite frame and the protected message is transmitted. In the third stage, the receiver validates the structure, freshness, uniqueness and authenticity of the message, applies its request-rate policy, and either processes the message or discards it.
+
+The remainder of this chapter is structured as follows. Section~\ref{sec:m-approach} describes the methodological approach, including the assumptions, the threat model and the design goals of ELAF. Section~\ref{sec:m-design} presents the design of ELAF, including the structure of the SEF, the generation of the authentication tag, and the verification and request-control procedures at the receiver. Section~\ref{sec:m-workflow} describes the end-to-end workflow of the mechanism. Section~\ref{sec:m-attacks} explains how the mechanism is intended to counter replay, DoS and EDoS attacks and states the limits of this protection. Section~\ref{sec:m-setup} describes the simulation and emulation environments used to implement and test the mechanism, and Section~\ref{sec:m-metrics} defines the evaluation metrics. Section~\ref{sec:m-summary} summarises the chapter.
+
+%--------------------------------------------------------------------
+\section{Developing ELAF: Methodology and Approach}
+\label{sec:m-approach}
+
+ELAF is intended to provide a lightweight, application-layer security extension for ECHONET Lite that allows a receiving node to accept only those messages that are authentic, unmodified and fresh. The protection is applied at the point at which the ECHONET Lite message is parsed and interpreted, which is the point identified in Chapter~1 as the appropriate place for the security decision. Because the protection is carried with the message itself, it does not depend on the optional and heterogeneous lower-layer mechanisms to which the specification delegates security \citep{ECHONETPart2,ECHONETGuidelines}.
+
+\subsection{Underlying Assumptions}
+\label{sec:m-assumptions}
+
+The following assumptions are made in developing and evaluating ELAF.
+
+\begin{itemize}
+  \item \emph{Pre-shared symmetric key.} All participating ELAF nodes share a single symmetric secret key $K$, which is installed in each device during manufacturing or initial configuration. Key generation, distribution, renewal and revocation are outside the scope of this study, consistent with the scope stated in Chapter~1 and the scope boundary recorded in Section~\ref{sec:gap}.
+  % TODO(author): State the key length used in the implementation (questionnaire C4 is TBD).
+  \item \emph{Uniform deployment.} To assess functionality and performance, all communicating nodes in the evaluated environment are configured with ELAF. A node that does not implement ELAF cannot produce a valid SEF and its messages are therefore discarded by ELAF nodes.
+  \item \emph{Loosely synchronised clocks.} Communicating nodes are assumed to maintain clocks that agree to within the timestamp tolerance defined in Section~\ref{sec:m-sef}.
+  \item \emph{Integrity of the key holders.} Nodes that hold the key are assumed not to be compromised. The consequences of a compromised key holder are discussed as a limitation in Section~\ref{sec:m-attack-limits}.
+\end{itemize}
+
+\subsection{Threat Model}
+\label{sec:m-threat}
+
+The threat model follows the adversary described in Chapter~1, namely an adversary capable of observing, injecting, modifying or replaying communication on the network path. The adversary is assumed to have the following capabilities.
+
+\begin{enumerate}
+  \item The adversary can reach the local network segment. It knows that ECHONET Lite nodes listen on UDP port 3610 and on the multicast groups defined in the specification \citep{ECHONETPart2}.
+  \item The adversary knows the ECHONET Lite frame format, object codes, property codes and service codes, and can therefore construct syntactically valid frames.
+  \item The adversary can capture frames exchanged between legitimate nodes and retransmit them unchanged at a later time (replay).
+  \item The adversary can modify captured frames, or forge new frames, with the intention of causing an unauthorised change in the state of a device.
+  \item The adversary can transmit frames at a high rate in order to exhaust the processing capacity of a receiving node or to prevent legitimate control (DoS).
+  \item The adversary does not possess the shared key $K$.
+\end{enumerate}
+
+Eavesdropping on property values is recognised in Chapter~2 as limitation L4. ELAF does not encrypt the ECHONET Lite payload, and confidentiality is therefore not among the properties that the mechanism claims to provide.
+
+\subsection{Design Goals}
+\label{sec:m-goals}
+
+The design goals of ELAF follow directly from the requirements derived in Section~\ref{sec:gap} and from the research objectives stated in Chapter~1.
+
+\begin{enumerate}
+  \item \textbf{Message authentication and integrity.} A receiver must be able to verify that a frame was produced by a holder of the shared key and that the protected content has not been altered (Objective~1; limitations L2 and L3).
+  \item \textbf{Freshness and replay resistance.} A receiver must be able to reject a frame that is outside the permitted time window or that repeats a previously received frame (Objective~2; limitation L5).
+  \item \textbf{Preservation of the object model.} The SEOJ, DEOJ, ESV and property fields must retain their standard meaning, so that the ECHONET Lite object and property model is unchanged (Objective~1).
+  \item \textbf{Low and fixed overhead.} The added bytes and processing time per frame must be small, fixed and measurable (Objective~3; limitation L7).
+  \item \textbf{Fail-closed behaviour.} A frame that fails any check must be discarded without effect on the target object.
+  \item \textbf{Bounded request rate.} A receiver must be able to limit the rate at which it processes requests from a single source, so that flooding does not prevent legitimate operation (limitation L9).
+\end{enumerate}
+
+%--------------------------------------------------------------------
+\section{Design of the Proposed ELAF Mechanism}
+\label{sec:m-design}
+
+ELAF is placed in the ECHONET Lite communication processing block, between the application software that generates and consumes ECHONET Lite messages and the lower-layer communication software. Figure~\ref{fig:elaf-layer} illustrates the operating position of the mechanism. On transmission, ELAF receives a complete ECHONET Lite frame from the application, attaches an SEF and passes the protected message to the transport layer. On reception, ELAF validates the SEF, removes it, and passes the original ECHONET Lite frame to the application only if every check succeeds.
+
+\begin{figure}[htb!]
+  \centering
+  % TODO(author): Insert a diagram showing ELAF between the ECHONET Lite application
+  % and the lower-layer communication software (cf. Figure 1.1 architecture diagram).
+  \includegraphics[width=0.80\textwidth]{chapters/figures/placeholder.png}
+  \caption{Operating position of ELAF in the ECHONET Lite communication stack}
+  \label{fig:elaf-layer}
+\end{figure}
+
+\subsection{Structure of the Security Extension Field}
+\label{sec:m-sef}
+
+The SEF is the core of ELAF. It contains all the information that the receiver requires to validate a message, and it is carried with the message itself, so that no additional control messages are exchanged between sender and receiver. The SEF is concatenated immediately after the complete ECHONET Lite frame, so that an ELAF message consists of the unmodified frame (EHD1, EHD2, TID and EDATA) followed by the SEF. The receiver treats the bytes that follow the end of the ECHONET Lite frame as the SEF. Because the frame itself is not altered, the SEOJ, DEOJ, ESV and property fields retain their standard positions and meanings. The fields of the SEF are listed in Table~\ref{tab:sef}.
+% TODO(author): Confirm how the receiver determines the end of the ECHONET Lite frame (questionnaire B1).
+
+\begin{table}[htbp]
+  \centering
+  \caption{Fields of the ELAF Security Extension Field (SEF)}
+  \label{tab:sef}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l c X@{}}
+    \toprule
+    \textbf{Field}         & \textbf{Size (bytes)} & \textbf{Description}                                                        \\
+    \midrule
+    Version (V)            & 1                     & Version of the secured protocol; the value \texttt{0x03} identifies ELAF    \\
+    Length (L)             & 1                     & Total length of the SEF in bytes                                            \\
+    Type of Mechanism (ToM) & 1                    & Identifies the authentication algorithm and tag length                      \\
+    Timestamp ($\tau$)     & 4                     & Time at which the message was generated, used for freshness validation     \\
+    Counter ($c$)          & 4                     & Monotonic per-sender counter, used for ordering and duplicate detection    \\
+    Authentication tag ($t$) & 12                  & HMAC-SHA-256 output truncated to 96 bits (for ToM~96)                       \\
+    \midrule
+    \textbf{Total}         & \textbf{23}           & Size of the SEF for the default mechanism (ToM~96)                          \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Version.} The version field identifies the secured variant of the protocol. In this study, the value \texttt{0x03} denotes ELAF. A receiver discards any message whose version does not match its own. As a consequence, ELAF nodes do not process messages from nodes that do not implement ELAF, and nodes that do not implement ELAF are unable to communicate with ELAF nodes. This behaviour is deliberate, since accepting unprotected messages would reintroduce the limitations that the mechanism is intended to remove.
+% TODO(author): The emulation diagram labels the secured protocol "v3.0" and legacy devices "v2.0".
+% These are ELAF labels, not ECHONET Lite specification versions; confirm the wording you want to use.
+
+\paragraph{Length.} The length field records the total length of the SEF in bytes. Because the size of the authentication tag depends on the selected mechanism, the length field allows the receiver to locate the end of the SEF and to reject a structurally malformed SEF before performing any cryptographic computation.
+% TODO(author): Questionnaire D3 describes Length as "the size of the entire header after the attached
+% SEF", whereas the draft table says "total length of the authentication block". Confirm which is implemented.
+
+\paragraph{Type of Mechanism.} The ToM field identifies the authentication algorithm and the length to which its output is truncated. The values supported in this study are summarised in Table~\ref{tab:tom}. A receiver accepts only messages whose ToM matches the mechanism configured on that receiver, so that devices configured with different mechanisms do not communicate. This separation allows a manufacturer to select a tag length suited to the resources of a device class, and it allows products offering different levels of authentication strength to be distinguished. The tag length, and therefore the size of the SEF, varies with the mechanism selected.
+
+% TODO(author): The draft and questionnaire give the ToM values as "92, 128 and 256", but also state that
+% the 12-byte tag corresponds to "96". A 12-byte tag is 96 bits. Confirm whether the code is 92 or 96;
+% the table below assumes 96.
+\begin{table}[htbp]
+  \centering
+  \caption{Type of Mechanism values supported by ELAF}
+  \label{tab:tom}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}c l c c X@{}}
+    \toprule
+    \textbf{ToM} & \textbf{Algorithm} & \textbf{Tag (bytes)} & \textbf{SEF (bytes)} & \textbf{Remarks}                                \\
+    \midrule
+    96           & HMAC-SHA-256-96    & 12                   & 23                   & Default; truncated to the first 12 bytes         \\
+    128          & HMAC-SHA-256-128   & 16                   & 27                   & Truncated to the first 16 bytes                  \\
+    256          & HMAC-SHA-256       & 32                   & 43                   & Full, untruncated HMAC-SHA-256 output            \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\paragraph{Timestamp.} The timestamp $\tau$ records the time at which the sender generated the message. On reception, the receiver compares $\tau$ with its own clock $T_{\mathrm{now}}$ and accepts the message only if
+\begin{equation}
+  \left| T_{\mathrm{now}} - \tau \right| \le \Delta ,
+  \label{eq:freshness}
+\end{equation}
+where $\Delta$ is the permitted clock tolerance. In the evaluated environment, $\Delta$ is set to 1000~ms to accommodate network and processing delay in the emulated setup. A message that fails this condition is discarded.
+% TODO(author): Confirm the timestamp unit and encoding. The draft table says Unix time in seconds, but
+% questionnaire D6 says milliseconds. A 4-byte unsigned field cannot hold the absolute Unix time in
+% milliseconds (it overflows after about 49.7 days), so a millisecond timestamp would have to be relative
+% or truncated. If seconds are used, note that an unsigned 32-bit value remains valid until 2106.
+
+\paragraph{Counter.} The counter $c$ is a four-byte value maintained by each sender. It is initialised to zero and incremented by one for every request that the sender transmits. Together with the timestamp, it makes the protected content of every message unique, so that two legitimate messages from the same sender never carry identical SEFs. A four-byte counter permits $2^{32} = 4{,}294{,}967{,}296$ distinct values before it wraps. At a rate of one message per second, this corresponds to approximately 136 years of continuous operation, and at ten messages per second to approximately 13.6 years, so that counter exhaustion is not a practical concern for the traffic rates of residential appliances.
+% TODO(author): State what the implementation does when the counter reaches 2^32 - 1 (questionnaire D7.7).
+
+\paragraph{Authentication tag.} The authentication tag $t$ is the output of HMAC computed with the shared key $K$ over the protected data, truncated according to the ToM field. Its generation is described in Section~\ref{sec:m-tag}.
+
+\subsection{Generation of the Authentication Tag}
+\label{sec:m-tag}
+
+ELAF uses HMAC with SHA-256 as the underlying hash function. HMAC is a keyed-hash construction that allows a receiver holding the same secret key to verify both the integrity and the origin of the authenticated data \citep{RFC2104}. It is important to note that HMAC does not encrypt data. The receiver does not decrypt the tag; it recomputes the tag from the received data and the shared key, and compares the result with the received tag.
+
+The sender computes the tag as
+\begin{equation}
+  t = \mathrm{Trunc}_{\ell}\!\left( \mathrm{HMAC\text{-}SHA\text{-}256}\left(K,\; V \,\|\, L \,\|\, \mathrm{ToM} \,\|\, \tau \,\|\, c \,\|\, F \right) \right),
+  \label{eq:tag}
+\end{equation}
+where $\|$ denotes concatenation, $F$ is the ECHONET Lite frame (EHD1, EHD2, TID and EDATA), and $\mathrm{Trunc}_{\ell}$ retains the leftmost $\ell$ bytes of the 32-byte HMAC output, with $\ell$ determined by the ToM field (Table~\ref{tab:tom}).
+% TODO(author) -- IMPORTANT: Questionnaire B3 states that "HMAC authenticates the SEF attached to the
+% ECHONET Lite header". If the HMAC input excludes the ECHONET Lite frame F, an attacker could change
+% ESV, EPC or EDT while keeping a valid SEF, and Objective 1 (data integrity) would NOT be met.
+% Equation (3.2) assumes F is included. Confirm against the code and correct either the code or this text.
+
+Including the SEF header fields ($V$, $L$, ToM, $\tau$ and $c$) in the HMAC input binds them to the tag, so that an adversary cannot alter the timestamp or counter of a captured frame to make it appear fresh. Including the ECHONET Lite frame $F$ ensures that any modification of the service code, object codes, property codes or property values is detected.
+
+Truncation of HMAC output is a recognised practice. RFC~2104 permits the output to be truncated and recommends that the truncated length be not less than half of the hash output length and not less than 80 bits \citep{RFC2104}. The IPsec profile for HMAC-SHA-256 uses a 128-bit truncated output \citep{RFC4868}, and NIST permits truncated MAC outputs subject to minimum-length conditions \citep{NISTSP800107}. The 96-bit tag of the default ToM satisfies the 80-bit lower bound of RFC~2104, but it is shorter than half of the 256-bit SHA-256 output. It is therefore a deliberate trade-off between message size and forgery resistance for constrained devices. ToM~128 meets both recommendations of RFC~2104, at a cost of four additional bytes per message.
+
+\subsection{Verification at the Receiver}
+\label{sec:m-verify}
+
+On receiving a message, an ELAF node performs a sequence of checks, presented in Algorithm~\ref{alg:verify}. The checks are ordered so that inexpensive structural and state checks are performed before the HMAC is recomputed. A malformed, stale, duplicated or rate-limited message is thereby discarded without incurring the cost of the cryptographic computation, which limits the processing effort an adversary can force on the receiver by flooding it with invalid messages. Each discard in Algorithm~\ref{alg:verify} terminates the processing of the message.
+% TODO(author): Confirm that the implementation performs the checks in this order (questionnaire E2
+% only says "validate package"). If the order differs, update Algorithm 3.1 to match the code.
+
+\begin{algorithm}[htbp]
+  \caption{ELAF message verification at the receiver}
+  \label{alg:verify}
+  \begin{algorithmic}[1]
+    \Require received message $M$, shared key $K$, configured mechanism $\mathrm{ToM}_r$, request table $R$
+    \State extract $V, L, \mathrm{ToM}, \tau, c, t$ and the frame $F$ from $M$
+    \If{$V \neq \texttt{0x03}$ \textbf{or} $\mathrm{ToM} \neq \mathrm{ToM}_r$ \textbf{or} $L$ is inconsistent with $\mathrm{ToM}$}
+      \State \textbf{discard} $M$ \Comment{structural check}
+    \EndIf
+    \State $s \gets$ source identifier of $M$
+    \If{$s$ is currently suspended}
+      \State \textbf{discard} $M$ \Comment{rate control (Section~\ref{sec:m-rate})}
+    \EndIf
+    \If{$|T_{\mathrm{now}} - \tau| > \Delta$}
+      \State \textbf{discard} $M$ \Comment{freshness check, Equation~\ref{eq:freshness}}
+    \EndIf
+    \If{an entry with source $s$ and counter $c$ exists in $R$}
+      \State suspend $s$ for $T_{\mathrm{dup}}$; \textbf{discard} $M$ \Comment{duplicate (replay) check}
+    \EndIf
+    \State $t' \gets \mathrm{Trunc}_{\ell}(\mathrm{HMAC\text{-}SHA\text{-}256}(K, V \| L \| \mathrm{ToM} \| \tau \| c \| F))$
+    \If{$t' \neq t$}
+      \State \textbf{discard} $M$ \Comment{authentication and integrity check}
+    \EndIf
+    \State record $(s, \tau, c, \text{accepted})$ in $R$
+    \If{more than $N$ requests from $s$ are recorded in $R$ within the window $W$}
+      \State suspend $s$ for $T_{\mathrm{susp}}$; \textbf{discard} $M$ \Comment{request-rate check}
+    \EndIf
+    \State remove the SEF and pass $F$ to the ECHONET Lite application
+  \end{algorithmic}
+\end{algorithm}
+
+The comparison of $t'$ with $t$ should be performed in constant time, so that the time taken to reject a forged tag does not reveal how many of its leading bytes are correct.
+% TODO(author): Confirm whether the implementation uses a constant-time comparison (e.g., hmac.compare_digest
+% in Python). If it does not, either change the code or delete this sentence.
+
+If all checks succeed, the receiver processes the request and returns the ECHONET Lite response. The response is itself protected with an SEF generated by the responding node, so that the requesting node can verify it using the same procedure.
+% TODO(author): Questionnaire E2 says the response is sent "attached with same SEF". Reusing the request's SEF
+% unchanged would produce a response that fails the duplicate check and does not authenticate the response
+% content. Confirm that the response carries a freshly generated SEF (new timestamp, counter and tag).
+
+\subsection{Request Table and Request-Rate Control}
+\label{sec:m-rate}
+
+Each ELAF node maintains a request table $R$ that records the requests it has received. The structure of the table is shown in Table~\ref{tab:reqtable}. The table serves two purposes. First, it allows the receiver to recognise a message that repeats the source and counter of a message already received, which provides duplicate detection within the period covered by the table. Second, it allows the receiver to measure the rate at which each source is sending requests.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Structure of the ELAF request table}
+  \label{tab:reqtable}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l X@{}}
+    \toprule
+    \textbf{Field}       & \textbf{Purpose}                                       \\
+    \midrule
+    Source identifier    & Identifies the sender of the request                  \\
+    Timestamp ($\tau$)   & Time of generation, used for freshness and rate measurement \\
+    Counter ($c$)        & Used to detect duplicated and replayed requests        \\
+    Status               & Records whether the request was accepted or rejected   \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+% TODO(author): Define the "source identifier" used in the implementation (IP address, SEOJ, or another ID).
+
+Entries are retained for $T_{\mathrm{table}} = 5$~s, after which the table is cleared. Because this retention period exceeds the timestamp tolerance $\Delta$, the two mechanisms complement each other: a replayed message that arrives within the tolerance window is detected by the request table, and a replayed message that arrives after the tolerance window is rejected by the freshness check of Equation~\ref{eq:freshness}. A message that duplicates an entry already in the table causes the source to be suspended for $T_{\mathrm{dup}} = 500$~ms.
+
+The request-rate policy is based on the observation that a person operating an appliance through a controller does not normally issue several commands to the same device within a few seconds. If a receiver records more than $N = 5$ requests from the same source within a window of $W = 3$~s, it treats the traffic as automated, discards the excess requests and suspends all requests from that source for $T_{\mathrm{susp}} = 30$~s. During the suspension period, requests from the suspended source are discarded at the rate-control check of Algorithm~\ref{alg:verify}, before the HMAC is computed. When the suspension expires, the suspended node must authenticate again and announces its availability by broadcasting a protected notification, after which its requests are processed normally.
+% TODO(author): (1) Confirm the threshold semantics: does the 5th or the 6th request within 3 s trigger
+% suspension? (2) Questionnaire B2 mentions a 5 s window and a 60 s penalty, whereas the draft and F2/F4
+% give 3 s and 30 s; this text uses 3 s and 30 s. (3) Confirm whether rejected (unauthenticated) frames are
+% counted towards the threshold; Algorithm 3.1 counts only authenticated requests.
+
+The values of $N$, $W$, $T_{\mathrm{susp}}$, $T_{\mathrm{table}}$ and $T_{\mathrm{dup}}$ are configuration parameters selected for the evaluated environment, not universal constants. They are intended to be refined according to measured traffic patterns, latency and the requirements of particular device classes. A comparable concern with request rates is already recorded in the ECHONET Lite Guidelines, which note that certain smart meters stop communicating for ten minutes after receiving sixty or more messages per minute \citep{ECHONETGuidelines}.
+
+%--------------------------------------------------------------------
+\section{ELAF Workflow}
+\label{sec:m-workflow}
+
+The ECHONET Lite request is first generated by the application at the sender and packaged in the standard frame format. ELAF then takes this frame as its input before it is passed to the transport layer. The workflow at the sender and at the receiver is as follows.
+
+\begin{enumerate}
+  \item \textbf{Generate request.} The application at the sender generates the ECHONET Lite frame $F$ (EHD1, EHD2, TID, SEOJ, DEOJ, ESV, OPC and the property fields).
+  \item \textbf{Set version and mechanism.} The sender sets $V = \texttt{0x03}$ and the ToM configured by the manufacturer, which determines the tag length $\ell$, and sets $L$ to the corresponding SEF length.
+  \item \textbf{Record timestamp.} The sender records the current time as $\tau$.
+  \item \textbf{Increment counter.} The sender increments its counter and writes the new value as $c$.
+  \item \textbf{Compute tag.} The sender computes the tag $t$ with the shared key $K$ using Equation~\ref{eq:tag}.
+  \item \textbf{Attach SEF.} The sender assembles the SEF from $V$, $L$, ToM, $\tau$, $c$ and $t$ and attaches it to the frame.
+  \item \textbf{Transmit.} The protected message is sent to the destination node on UDP port 3610.
+  \item \textbf{Receive and extract.} The receiver extracts the SEF fields and the frame $F$ from the received message.
+  \item \textbf{Validate structure.} The receiver checks the version, ToM and length fields and discards the message if any of them does not match its configuration.
+  \item \textbf{Check suspension.} The receiver discards the message if its source is currently suspended.
+  \item \textbf{Check freshness.} The receiver discards the message if the timestamp lies outside the tolerance $\Delta$.
+  \item \textbf{Check for duplicates.} The receiver discards the message, and suspends its source for $T_{\mathrm{dup}}$, if the source and counter already appear in the request table.
+  \item \textbf{Verify tag.} The receiver recomputes the tag $t'$ and discards the message if $t' \neq t$.
+  \item \textbf{Apply rate policy.} The receiver records the request in the request table and, if the threshold of $N$ requests within $W$ is exceeded, suspends the source for $T_{\mathrm{susp}}$ and discards the message.
+  \item \textbf{Accept and respond.} The receiver removes the SEF, passes $F$ to the ECHONET Lite application for processing, and returns a response protected by a newly generated SEF.
+\end{enumerate}
+
+In all cases in which a check fails, the message is discarded silently, and the target ECHONET Lite object is unaffected. Figure~\ref{fig:elaf-workflow} illustrates the workflow of the mechanism.
+% TODO(author): Confirm whether rejected messages are logged by the receiver (questionnaire E3 is TBD).
+
+\begin{figure}[htb!]
+  \centering
+  % TODO(author): Insert a flowchart of the sender and receiver steps listed above.
+  \includegraphics[width=0.90\textwidth]{chapters/figures/placeholder.png}
+  \caption{Workflow of the proposed ELAF mechanism}
+  \label{fig:elaf-workflow}
+\end{figure}
+
+%--------------------------------------------------------------------
+\section{Defence Against Targeted Attacks}
+\label{sec:m-attacks}
+
+This section explains how the components of ELAF are intended to counter the attacks considered in this study. The effectiveness of each defence is evaluated experimentally in Chapter~4, and the statements in this section describe design intent rather than measured results. Table~\ref{tab:attack-map} summarises the relationship between attacks and ELAF controls.
+
+\begin{table}[htbp]
+  \centering
+  \caption{ELAF controls mapped to the attacks considered in this study}
+  \label{tab:attack-map}
+  \footnotesize
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.2cm}@{}}
+    \toprule
+    \textbf{Attack}                   & \textbf{ELAF control}                                                                   & \textbf{Limitation addressed} \\
+    \midrule
+    Forged or injected command        & HMAC tag computed with the shared key                                                   & L2                            \\
+    Message modification              & HMAC tag covering the SEF fields and the ECHONET Lite frame                             & L3                            \\
+    Replay                            & Timestamp tolerance, counter and request-table duplicate check, bound by the HMAC tag   & L5                            \\
+    Denial of service (flooding)      & Check ordering, suspension of sources that exceed the request-rate threshold            & L9                            \\
+    Economic denial of service (EDoS) & Rejection of unauthenticated control commands; request-rate threshold                   & L2, L3, L8 (in part)          \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Forged Commands and Message Modification}
+
+An adversary who does not possess $K$ cannot compute a valid tag for a forged frame, and a frame whose ESV, object, property or value fields have been modified will produce a recomputed tag $t'$ that differs from the received tag $t$. In both cases the receiver discards the frame at the authentication check of Algorithm~\ref{alg:verify}. The probability that a randomly chosen 96-bit tag is accepted is $2^{-96}$ per attempt, and the request-rate control further limits the number of attempts an adversary can make against a single receiver.
+
+\subsection{Replay Attack}
+
+A replay attack retransmits a previously valid frame in order to repeat its effect, for example to switch an appliance on again after the user has switched it off \citep{heartfieldTaxonomyCyberphysicalThreats2018}. Because the timestamp and counter are included in the HMAC input, an adversary cannot alter them without invalidating the tag. A replayed frame therefore carries its original timestamp and counter. If it arrives more than $\Delta$ after it was generated, it is rejected by the freshness check. If it arrives within $\Delta$, its source and counter are already present in the request table, and it is rejected by the duplicate check, which also suspends the source for $T_{\mathrm{dup}}$.
+% TODO(author): Questionnaire section G (replay scenario, detection, response) is blank. Add the exact replay
+% scenario simulated in the experiments (e.g., capture with Wireshark/Scapy and retransmission after X s).
+
+\subsection{Denial-of-Service Attack}
+
+A DoS attack against an ECHONET Lite node attempts to consume the processing capacity of the node, or to occupy it with requests so that legitimate control is delayed or prevented. ELAF limits the effect of flooding in two ways. First, the ordering of checks in Algorithm~\ref{alg:verify} ensures that frames with an incorrect version, mechanism or length, stale timestamps, duplicated counters or suspended sources are discarded before the HMAC is computed, so that the cost of rejecting such frames is small. Second, a source that exceeds the request-rate threshold is suspended, so that its subsequent requests are discarded at the rate-control check for the duration of the suspension.
+
+\subsection{Economic Denial-of-Service Attack}
+
+In this thesis, an economic denial-of-service (EDoS) attack refers to an attack that does not interrupt the operation of an appliance, but instead issues control commands that cause the household to incur avoidable energy cost. An example is commanding an air conditioner to operate at its most energy-intensive setting while the occupants are known to be absent. Attacks on smart-home energy management systems have been associated with energy loss and increased consumption \citep{alkatheiriCyberSecurityFramework2021}.
+% TODO(author): The term "EDoS" is established in the cloud-computing literature as "economic denial of
+% sustainability", which has a different meaning. Either cite a source that uses EDoS in the sense defined
+% here, or state explicitly that the term is used in an author-defined sense. Do not cite cloud EDoS papers
+% as support for this definition.
+
+Because an EDoS attack relies on the target device accepting a control command from the adversary, ELAF counters it by the same control that counters injection: a command that does not carry a valid tag is discarded. The request-rate threshold additionally limits how quickly any single source can change the operating state of a device.
+
+\subsection{Limits of the Protection}
+\label{sec:m-attack-limits}
+
+The protection provided by ELAF is bounded by its design assumptions, and the following limits are recorded so that the evaluation results in Chapter~4 can be interpreted correctly.
+
+\begin{itemize}
+  \item \emph{Single shared key.} All ELAF nodes share one key. A valid tag therefore demonstrates that a message was produced by a holder of the key, not which particular device produced it. An adversary who extracts the key from any one device can generate valid messages that appear to come from any node. Consequently, ELAF provides group authentication rather than per-device authentication, and it does not provide device authorisation in the sense of limitation L8.
+  \item \emph{Authenticated misuse.} ELAF cannot distinguish an unwanted but correctly authenticated command from a legitimate one. An EDoS attack launched from a compromised key holder, at a rate below the request-rate threshold, is not prevented by the mechanism.
+  \item \emph{Legitimate high-frequency traffic.} The request-rate policy does not distinguish legitimate high-frequency traffic, such as automated HEMS control or frequent sensor polling, from an attack. Such traffic may cause a legitimate source to be suspended unless the thresholds are configured for the device class concerned.
+  \item \emph{Spoofed source identifiers.} The request-rate policy and the suspension list are keyed on a source identifier. If that identifier can be forged without the key, an adversary could attempt to cause a legitimate source to be suspended.
+  % TODO(author): Revisit this point once the source identifier (Table 3.4 TODO) is defined.
+  \item \emph{No confidentiality.} ELAF does not encrypt property values, so the eavesdropping limitation L4 remains.
+  \item \emph{Interoperability.} ELAF nodes do not communicate with nodes that do not implement ELAF, so deployment alongside existing ECHONET Lite devices requires an intermediary of the kind used in the emulated testbed (Section~\ref{sec:m-emulation}).
+\end{itemize}
+
+%--------------------------------------------------------------------
+\section{Implementation and Testbed Setup}
+\label{sec:m-setup}
+
+ELAF is implemented and evaluated in two complementary environments: a simulated environment based on containerised software, and an emulated environment based on a physical testbed of commercial ECHONET Lite devices. The simulated environment allows attack traffic to be generated and observed under controlled conditions, while the emulated environment allows the behaviour of the mechanism to be examined with real appliances and a real network. The tools used are summarised in Table~\ref{tab:tools}.
+
+% TODO(author): Questionnaire section K is blank. Add the programming language, OS, major libraries,
+% number of containers, and the versions of Docker, Scapy, SSNG and Wireshark. Add a citation or URL for
+% Elemu and SSNG if one is available.
+\begin{table}[htbp]
+  \centering
+  \caption{Tools and platforms used in the implementation and evaluation}
+  \label{tab:tools}
+  \renewcommand{\arraystretch}{1.2}
+  \begin{tabularx}{\textwidth}{@{}l X@{}}
+    \toprule
+    \textbf{Tool or platform} & \textbf{Role in this study}                                                 \\
+    \midrule
+    Docker                    & Isolated, containerised network hosting multiple emulated ECHONET Lite nodes \\
+    ECHONET Lite emulator     & Emulated ECHONET Lite devices, one instance per container                  \\
+    Scapy                     & Crafting and injecting ECHONET Lite frames, including forged frames        \\
+    SSNG                      & Generating ECHONET Lite traffic and stress-testing (DoS and replay)         \\
+    Wireshark                 & Capturing and analysing network traffic                                    \\
+    Raspberry Pi~5            & Hardware platform for the auth\_controller and the translator              \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Simulated Environment}
+\label{sec:m-simulation}
+
+The simulated environment runs on a single host computer. Docker is used to create an isolated network in which ECHONET Lite communication can be exercised without interference from other traffic. Several instances of an ECHONET Lite emulator run in separate containers, each with its own IP address on the container network, so that the emulated devices can exchange messages with one another as distinct ECHONET Lite nodes. Every message exchange is performed under each of the security modes compared in this study, namely native ECHONET Lite, ELAF, DTLS and JSON Web Token (JWT), so that the overhead and behaviour of ELAF can be compared with unprotected communication and with two established security approaches. Frames are crafted and injected using Scapy, and legitimate and attack traffic is generated using the SSNG tool. The traffic exchanged between the containers is captured with Wireshark, which allows each frame, including its security trailer, to be dissected and analysed from the perspective of an adversary observing the network. Figure~\ref{fig:sim-setup} illustrates the simulated environment.
+% TODO(author): Confirm the emulator name/version (emu_echonet_lite vs. Elemu 1.1.0) and the number of
+% instances (questionnaire A4).
+
+\begin{figure}[htb!]
+  \centering
+  % TODO(author): Insert the simulated setup diagram (assets/Experiment 1.png) after removing the
+  % "Figure 1:" caption text that is embedded in the image.
+  \includegraphics[width=0.85\textwidth]{chapters/figures/placeholder.png}
+  \caption{Simulated experimental environment}
+  \label{fig:sim-setup}
+\end{figure}
+
+\subsection{Emulated Environment}
+\label{sec:m-emulation}
+
+The emulated environment is a physical testbed consisting of commercial ECHONET Lite appliances, namely three air conditioners, four lights, one light controller and one air purifier. Two Raspberry Pi~5 boards host the ELAF software components. Because commercial appliances implementing ELAF are not available, the mechanism is introduced into the testbed through two software components.
+% TODO(author): The draft says "8 real devices", but the testbed diagram lists 3 + 4 + 1 + 1 = 9 devices.
+% Confirm the correct number.
+
+\begin{itemize}
+  \item \texttt{auth\_controller}: an emulated ELAF-enabled HEMS controller, running on a Raspberry Pi~5, which generates ECHONET Lite requests protected with an SEF.
+  \item \texttt{translator}: an intermediary node, running on a second Raspberry Pi~5, which receives ELAF requests on behalf of the commercial appliances. The translator performs the full verification procedure of Algorithm~\ref{alg:verify}. A request that passes verification has its SEF removed and is forwarded as a standard ECHONET Lite frame to the target appliance, whereas a request that fails verification is discarded.
+\end{itemize}
+
+In addition, an emulated ELAF-enabled device, \texttt{auth\_ambient\_light}, is configured with the same key and parameters as the auth\_controller, so that the controller can communicate with it directly without the translator. This device allows the end-to-end behaviour of ELAF, in which the appliance itself performs verification, to be examined alongside the translator-based configuration.
+
+The translator exists because commercial ELAF-enabled appliances do not exist, and it should be understood as an evaluation instrument rather than as a component that the mechanism requires. Its use has one consequence for interpretation: on the link between the translator and the commercial appliances, messages are standard ECHONET Lite frames, so the measurements obtained through the translator describe the protection of the path between the controller and the translator. Figure~\ref{fig:emu-setup} illustrates the emulated environment.
+% TODO(author): Questionnaire section J3 is blank. Confirm whether the translator keeps per-source state
+% (request table, suspension list) and whether it modifies the frame other than removing the SEF.
+
+\begin{figure}[htb!]
+  \centering
+  % TODO(author): Insert the emulated testbed diagram (assets/Experiment 2-Testbed Setup.png) after removing
+  % the "Figure 2:" caption text embedded in the image.
+  \includegraphics[width=0.60\textwidth]{chapters/figures/placeholder.png}
+  \caption{Emulated experimental environment (physical testbed)}
+  \label{fig:emu-setup}
+\end{figure}
+
+\subsection{Experimental Scenarios}
+\label{sec:m-scenarios}
+
+The mechanism is evaluated under legitimate and adversarial conditions. In the baseline scenario, standard ECHONET Lite requests are exchanged without any protection (native mode), so that the overhead of each mechanism can be measured against unprotected communication. In the protected scenarios, the same requests are exchanged with ELAF, DTLS and JWT in turn. In the adversarial scenarios, the protected and unprotected systems are subjected to forged command injection, replay of captured frames, and request flooding.
+% TODO(author): List the ECHONET Lite services (e.g., Get 0x62, SetC 0x61) and properties used in each
+% scenario, the number of repetitions, and the attack rates (questionnaire I2 and G1 are blank).
+
+%--------------------------------------------------------------------
+\section{Evaluation Metrics}
+\label{sec:m-metrics}
+
+The evaluation assesses ELAF in terms of its performance cost and its security behaviour, in accordance with Objective~3. The following metrics are used.
+
+\subsection{Processing Time}
+
+Processing time measures the computational cost that ELAF adds at each node. At the sender, it is the time taken to construct the SEF and compute the tag. At the receiver, it is the time taken to perform the verification procedure of Algorithm~\ref{alg:verify}. In both cases it is computed as
+\begin{equation}
+  PT = T_{\mathrm{end}} - T_{\mathrm{start}} ,
+  \label{eq:pt}
+\end{equation}
+where $T_{\mathrm{start}}$ and $T_{\mathrm{end}}$ are the times at which the relevant operation begins and ends.
+
+\subsection{Latency}
+
+Latency is measured as the round-trip time between the transmission of a request by the controller and the reception of the corresponding response. Latency is measured with and without ELAF, and the difference between the two indicates the end-to-end delay attributable to the mechanism.
+
+\subsection{Throughput}
+
+Throughput is the number of requests successfully processed by a receiver per unit time,
+\begin{equation}
+  TP = \frac{N_{\mathrm{processed}}}{T_{\mathrm{obs}}} ,
+  \label{eq:tp}
+\end{equation}
+where $N_{\mathrm{processed}}$ is the number of requests accepted and processed during the observation period $T_{\mathrm{obs}}$. Throughput is compared with and without ELAF, and is also measured while the receiver is under attack, to indicate whether legitimate traffic continues to be served.
+
+\subsection{Detection Accuracy}
+
+Detection accuracy measures how correctly the receiver separates legitimate messages from attack messages. Treating the rejection of an attack message as a true positive (TP) and the acceptance of a legitimate message as a true negative (TN), accuracy is computed as
+\begin{equation}
+  \mathrm{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN} ,
+  \label{eq:acc}
+\end{equation}
+where a false positive (FP) is a legitimate message that is rejected, for example because of clock drift or the request-rate policy, and a false negative (FN) is an attack message that is accepted. The false-positive and false-negative rates are also reported, since they distinguish the cost of the mechanism to legitimate users from its failure to stop attacks.
+
+\subsection{Attack Success Rate}
+
+The attack success rate is the proportion of attack messages that produce an effect on the target device, such as a change of operating state or a response,
+\begin{equation}
+  ASR = \frac{N_{\mathrm{effective}}}{N_{\mathrm{attack}}} \times 100\% ,
+  \label{eq:asr}
+\end{equation}
+where $N_{\mathrm{attack}}$ is the number of attack messages sent and $N_{\mathrm{effective}}$ is the number that took effect. The attack success rate is measured separately for injection, replay and flooding, both without and with ELAF.
+
+\subsection{Communication Overhead}
+
+ELAF adds an SEF to every message, which increases the size of each frame. The relative communication overhead is computed as
+\begin{equation}
+  CO = \frac{SEF_{\mathrm{size}}}{Frame_{\mathrm{size}} + SEF_{\mathrm{size}}} \times 100\% ,
+  \label{eq:co}
+\end{equation}
+where $SEF_{\mathrm{size}}$ is the size of the SEF and $Frame_{\mathrm{size}}$ is the size of the standard ECHONET Lite frame. For example, a Format~1 Get request for a single property, with no property value data, occupies 14 bytes, and the addition of the 23-byte SEF of ToM~96 gives a relative overhead of approximately 62\% at the ECHONET Lite level. This figure excludes the UDP and IP headers, which are unchanged by ELAF, so the overhead relative to the complete packet is smaller. The overhead in absolute terms is fixed for a given ToM, which allows its effect to be predicted for any message.
+
+%--------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:m-summary}
+
+This chapter presented the design of ELAF, the application-layer security mechanism proposed in this study to address the absence of origin authentication, integrity protection and freshness in ECHONET Lite messages. ELAF attaches a fixed-structure Security Extension Field to each message, comprising a version, a length, a mechanism identifier, a timestamp, a counter and a truncated HMAC-SHA-256 tag, which occupies 23 bytes in its default configuration. A receiver accepts a message only if the version and mechanism match its configuration, the timestamp lies within the permitted tolerance, the counter has not already been seen, the tag is valid, and the sender is within the permitted request rate. A request table and a suspension policy limit the rate at which any single source can be served, and the ordering of the checks ensures that most invalid messages are discarded before any cryptographic computation is performed.
+
+The chapter also explained how these controls are intended to counter forged commands, message modification, replay, DoS and EDoS attacks, and recorded the limits of that protection, notably the use of a single shared key and the absence of confidentiality. Finally, it described the simulated and emulated environments in which the mechanism is implemented, and defined the metrics of processing time, latency, throughput, detection accuracy, attack success rate and communication overhead by which it is evaluated. Chapter~4 presents the implementation details and the results of this evaluation.
